@@ -81,19 +81,21 @@ var syncTimer = null;
 function persistSaves(){ if (syncTimer) return; syncTimer = setTimeout(function(){ syncTimer = null; Module.FS.syncfs(false, function(err){ if (err) console.error('syncfs', err); }); }, 1500); }
 document.addEventListener('visibilitychange', function(){ if (document.hidden && Module.FS) Module.FS.syncfs(false, function(){}); });
 window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(false, function(){}); });
-// Touch layer: the game only knows a mouse. A finger is the left button; a finger while MOD is held
-// is the right button (a long press too). A one-finger drag pans the map (sent as a right-button drag,
-// which the game turns into scrolling). Two fingers pinch to zoom the picture and move the zoomed view.
+// Touch layer: the game only knows a mouse. A finger is the left button, a finger while MOD is held
+// the right button (Simone's rule). Without MOD a drag moves the pointer, so a building outline follows
+// the finger, and lifting the finger is the left click (it places the building there). With MOD a drag
+// pans the map (sent as a right-button drag, which the game turns into scrolling) and a tap is a right
+// click. Two fingers pinch to zoom the picture and move the zoomed view.
 // Only touches that start on the canvas count (targetTouches), so the finger holding MOD is never one of them.
 // Touches never reach SDL's own handlers.
 (function(){
-  var c = Module.canvas, press = null, pinch = null, settle = false, LONG = 450, MOVE = 12, MAXZOOM = 4;
+  var c = Module.canvas, press = null, pinch = null, settle = false, MOVE = 12, MAXZOOM = 4;
   var modBtn = document.getElementById('modBtn'), fsBtn = document.getElementById('fsBtn'), zoomReset = document.getElementById('zoomReset');
   var modPointer = null, view = {s: 1, x: 0, y: 0};
-  function fire(type, t, button){ c.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, clientX: t.clientX, clientY: t.clientY, button: button, buttons: type === 'mouseup' ? 0 : (button === 2 ? 2 : 1)})); }
+  function fire(type, t, button){ c.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, clientX: t.clientX, clientY: t.clientY, button: button, buttons: type === 'mousedown' ? (button === 2 ? 2 : 1) : (type === 'mousemove' && button === 2 ? 2 : 0)})); }
   function stop(e){ e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
   function click(t, button){ fire('mousedown', t, button); setTimeout(function(){ fire('mouseup', t, button); }, 60); }
-  function cancelPress(){ if (!press) return; clearTimeout(press.timer); if (press.panning) fire('mouseup', press.t, 2); press = null; }
+  function cancelPress(){ if (!press) return; if (press.panning) fire('mouseup', press.t, 2); press = null; }
 
   //---- zoom: a CSS transform of the canvas; SDL reads the transformed size, so clicks still land right ----//
   function applyView(){
@@ -160,9 +162,8 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
     if (tt.length >= 2) { cancelPress(); startPinch(tt[0], tt[1]); return; }
     if (tt.length !== 1 || pinch || settle) return;
     // MOD counts if it is held when the finger touches or when it lifts, so letting go of MOD a moment early still gives a right click.
-    var t = tt[0]; press = {x: t.clientX, y: t.clientY, t: t, moved: false, timer: null, mod: modHeld()};
+    var t = tt[0]; press = {x: t.clientX, y: t.clientY, t: t, moved: false, mod: modHeld()};
     fire('mousemove', t, 0);
-    press.timer = setTimeout(function(){ if (!press || press.moved) return; press.long = true; click(press.t, 2); }, LONG);
   }, {capture: true, passive: false});
   c.addEventListener('touchmove', function(e){
     stop(e);
@@ -171,8 +172,9 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
     if (!press || tt.length !== 1) return;
     var t = tt[0]; press.t = t;
     if (!press.moved && Math.hypot(t.clientX - press.x, t.clientY - press.y) > MOVE) {
-      press.moved = true; clearTimeout(press.timer);
-      if (!press.long) { press.panning = true; fire('mousedown', {clientX: press.x, clientY: press.y}, 2); }
+      press.moved = true;
+      if (press.mod || modHeld()) { press.panning = true; fire('mousedown', {clientX: press.x, clientY: press.y}, 2); }
+      else press.aiming = true;		// without MOD the finger only moves the pointer until it lifts
     }
     fire('mousemove', t, press.panning ? 2 : 0);
   }, {capture: true, passive: false});
@@ -185,16 +187,15 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
     }
     if (settle) { settle = e.targetTouches.length > 0; return; }
     if (!press) return;
-    var p = press; press = null; clearTimeout(p.timer);
+    var p = press; press = null;
     if (p.panning) { fire('mouseup', p.t, 2); return; }
-    if (p.long || p.moved) return;
-    click(p.t, (p.mod || modHeld()) ? 2 : 0);		// MOD held: the finger is the right button
+    click(p.t, (p.mod || modHeld()) ? 2 : 0);		// a tap, or the end of an aiming drag; MOD held: the right button
   }
   c.addEventListener('touchend', end, {capture: true, passive: false});
   c.addEventListener('touchcancel', function(e){ stop(e); cancelPress(); pinch = null; settle = false; }, {capture: true, passive: false});
 })();
 ready.then(function(){
-  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro (anche la pressione lunga). Un dito trascinato sposta la visuale, due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
+  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per spostare il puntatore (per esempio un edificio da piazzare: si piazza dove alzi il dito); con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
   startBtn.hidden = false;
   startBtn.onclick = function(){
     loading.hidden = true;
