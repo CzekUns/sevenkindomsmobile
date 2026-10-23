@@ -17,6 +17,7 @@
   #bar i{display:block;height:100%;width:0;background:var(--bronze);transition:width .2s}
   #loading button{margin-top:14px;padding:12px 22px;border:1px solid var(--bronze);border-radius:10px;background:#2a241b;color:var(--ink);font:600 16px system-ui,sans-serif}
   #loading[hidden]{display:none}
+  #otherVersion{margin-top:6px;color:var(--bronze);font-size:15px}
   #fault{white-space:pre-wrap;color:#e0906c;font-size:12px;max-width:min(560px,90vw);text-align:left}
   /* Phone controls: they sit in the dark bands beside the 4:3 game, above a zoomed canvas. */
   canvas{transform-origin:0 0}
@@ -39,6 +40,7 @@
   <p id="status">Scarico i dati di gioco (circa 115 MB la prima volta)…</p>
   <div id="bar"><i id="barFill"></i></div>
   <button id="start" hidden>Gioca</button>
+  <a id="otherVersion" href="../">Vai alla versione originale</a>
   <pre id="fault"></pre>
 </div>
 <script>
