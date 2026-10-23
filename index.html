@@ -69,7 +69,8 @@ function persistSaves(){ if (syncTimer) return; syncTimer = setTimeout(function(
 document.addEventListener('visibilitychange', function(){ if (document.hidden && Module.FS) Module.FS.syncfs(false, function(){}); });
 window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(false, function(){}); });
 // Touch layer: the game only knows a mouse. A tap is a left click, a long press a right click,
-// a drag moves the pointer (edge scrolling works). Touches never reach SDL's own handlers.
+// a drag pans the map (sent as a right-button drag, which the game turns into scrolling).
+// Touches never reach SDL's own handlers.
 (function(){
   var c = Module.canvas, press = null, LONG = 450, MOVE = 12;
   function fire(type, t, button){ c.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, clientX: t.clientX, clientY: t.clientY, button: button, buttons: type === 'mouseup' ? 0 : (button === 2 ? 2 : 1)})); }
@@ -83,20 +84,24 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
   c.addEventListener('touchmove', function(e){
     stop(e); if (!press || e.touches.length !== 1) return;
     var t = e.touches[0]; press.t = t;
-    if (!press.moved && Math.hypot(t.clientX - press.x, t.clientY - press.y) > MOVE) { press.moved = true; clearTimeout(press.timer); }
-    fire('mousemove', t, 0);
+    if (!press.moved && Math.hypot(t.clientX - press.x, t.clientY - press.y) > MOVE) {
+      press.moved = true; clearTimeout(press.timer);
+      if (!press.long) { press.panning = true; fire('mousedown', {clientX: press.x, clientY: press.y}, 2); }
+    }
+    fire('mousemove', t, press.panning ? 2 : 0);
   }, {capture: true, passive: false});
   function end(e){
     stop(e); if (!press) return;
     var p = press; press = null; clearTimeout(p.timer);
+    if (p.panning) { fire('mouseup', p.t, 2); return; }
     if (p.long || p.moved) return;
     fire('mousedown', p.t, 0); setTimeout(function(){ fire('mouseup', p.t, 0); }, 60);
   }
   c.addEventListener('touchend', end, {capture: true, passive: false});
-  c.addEventListener('touchcancel', function(e){ stop(e); if (press) clearTimeout(press.timer); press = null; }, {capture: true, passive: false});
+  c.addEventListener('touchcancel', function(e){ stop(e); if (press) { clearTimeout(press.timer); if (press.panning) fire('mouseup', press.t, 2); } press = null; }, {capture: true, passive: false});
 })();
 ready.then(function(){
-  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tieni il telefono di lato. Tocco = tasto sinistro, pressione lunga = tasto destro.' : 'Pronto. Il gioco si usa col mouse: tasto sinistro seleziona, destro ordina.';
+  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tieni il telefono di lato. Tocco = tasto sinistro, pressione lunga = tasto destro, trascina il dito per spostare la visuale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
   startBtn.hidden = false;
   startBtn.onclick = function(){
     loading.hidden = true;
