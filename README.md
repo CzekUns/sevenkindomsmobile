@@ -4,6 +4,6 @@ Build in WebAssembly della versione 2.15.7 del progetto 7kfans (codice e dati di
 
 Sorgenti del gioco: https://sourceforge.net/projects/skfans/ — le cinque modifiche minime ai sorgenti, le modifiche delle mod e gli script di compilazione si forniscono su richiesta, come previsto dalla GPL.
 
-Comandi: sul PC il mouse come nell'originale (sinistro seleziona, destro ordina); la visuale si sposta tenendo premuto il destro e trascinando, portando il puntatore al bordo della mappa, con la rotella (su e giù) o cliccando sulla minimappa. Sul telefono, tenuto di lato: tocco = sinistro, pressione lunga = destro, dito trascinato = sposta la visuale. I salvataggi restano nel browser.
+Comandi: sul PC il mouse come nell'originale (sinistro seleziona, destro ordina); la visuale si sposta tenendo premuto il destro e trascinando, portando il puntatore al bordo della mappa, con la rotella (su e giù) o cliccando sulla minimappa. Sul telefono: «Gioca» va a schermo intero in orizzontale (pulsante in alto a sinistra per entrare e uscire); tocco = sinistro, tocco tenendo premuto MOD = destro (anche la pressione lunga), dito trascinato = sposta la visuale, due dita = zoom (pulsante 1× per toglierlo). I salvataggi restano nel browser.
 
 Versione con le mod: https://ilconsulentelogistico-hue.github.io/seven-kingdoms-play/mod/ — stessi dati, salvataggi separati. Mod presenti: statistiche di attacco e difesa nella scheda delle unità; pulsante Rename per unità e città; il sacerdote del Seat of Power cura i feriti vicini.
