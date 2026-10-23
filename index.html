@@ -81,20 +81,23 @@ function persistSaves(){ if (syncTimer) return; syncTimer = setTimeout(function(
 document.addEventListener('visibilitychange', function(){ if (document.hidden && Module.FS) Module.FS.syncfs(false, function(){}); });
 window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(false, function(){}); });
 // Touch layer: the game only knows a mouse. A finger is the left button, a finger while MOD is held
-// the right button (Simone's rule). Without MOD a drag moves the pointer, so a building outline follows
-// the finger, and lifting the finger is the left click (it places the building there). With MOD a drag
-// pans the map (sent as a right-button drag, which the game turns into scrolling) and a tap is a right
-// click. Two fingers pinch to zoom the picture and move the zoomed view.
+// the right button (Simone's rule). So a drag is a left-button drag, which draws the selection box,
+// and with MOD a right-button drag, which the game turns into scrolling. While the game waits for a
+// location (a building to place, an order with a destination) a drag only moves the pointer, so the
+// building outline follows the finger, and lifting the finger is the click that places it. Two
+// fingers pinch to zoom the picture and move the zoomed view.
 // Only touches that start on the canvas count (targetTouches), so the finger holding MOD is never one of them.
 // Touches never reach SDL's own handlers.
 (function(){
   var c = Module.canvas, press = null, pinch = null, settle = false, MOVE = 12, MAXZOOM = 4;
   var modBtn = document.getElementById('modBtn'), fsBtn = document.getElementById('fsBtn'), zoomReset = document.getElementById('zoomReset');
   var modPointer = null, view = {s: 1, x: 0, y: 0};
-  function fire(type, t, button){ c.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, clientX: t.clientX, clientY: t.clientY, button: button, buttons: type === 'mousedown' ? (button === 2 ? 2 : 1) : (type === 'mousemove' && button === 2 ? 2 : 0)})); }
+  function fire(type, t, button){ c.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, clientX: t.clientX, clientY: t.clientY, button: button, buttons: type === 'mousedown' ? (button === 2 ? 2 : 1) : (type === 'mousemove' ? button : 0)})); }
   function stop(e){ e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
   function click(t, button){ fire('mousedown', t, button); setTimeout(function(){ fire('mouseup', t, button); }, 60); }
-  function cancelPress(){ if (!press) return; if (press.panning) fire('mouseup', press.t, 2); press = null; }
+  function cancelPress(){ if (!press) return; if (press.panning) fire('mouseup', press.t, 2); if (press.boxing) fire('mouseup', press.t, 0); press = null; }
+  // The game tells whether it waits for a location on the map (patch 7 in applica-patch.py).
+  function waitingForLocation(){ try { return !!(Module._web_waiting_for_location && Module._web_waiting_for_location()); } catch (err) { return false; } }
 
   //---- zoom: a CSS transform of the canvas; SDL reads the transformed size, so clicks still land right ----//
   function applyView(){
@@ -157,6 +160,7 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
   //---- the canvas ----//
   c.addEventListener('touchstart', function(e){
     stop(e);
+    try { if (Module._web_set_touch_input) Module._web_set_touch_input(1); } catch (err) {}		// no help boxes while playing by touch (patch 8)
     var tt = e.targetTouches;
     if (tt.length >= 2) { cancelPress(); startPinch(tt[0], tt[1]); return; }
     if (tt.length !== 1 || pinch || settle) return;
@@ -173,9 +177,10 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
     if (!press.moved && Math.hypot(t.clientX - press.x, t.clientY - press.y) > MOVE) {
       press.moved = true;
       if (press.mod || modHeld()) { press.panning = true; fire('mousedown', {clientX: press.x, clientY: press.y}, 2); }
-      else press.aiming = true;		// without MOD the finger only moves the pointer until it lifts
+      else if (waitingForLocation()) press.aiming = true;		// placing a building: the finger only moves the pointer until it lifts
+      else { press.boxing = true; fire('mousedown', {clientX: press.x, clientY: press.y}, 0); }	// a left-button drag: the selection box
     }
-    fire('mousemove', t, press.panning ? 2 : 0);
+    fire('mousemove', t, press.panning ? 2 : press.boxing ? 1 : 0);
   }, {capture: true, passive: false});
   function end(e){
     stop(e);
@@ -188,13 +193,14 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
     if (!press) return;
     var p = press; press = null;
     if (p.panning) { fire('mouseup', p.t, 2); return; }
+    if (p.boxing) { fire('mouseup', p.t, 0); return; }
     click(p.t, (p.mod || modHeld()) ? 2 : 0);		// a tap, or the end of an aiming drag; MOD held: the right button
   }
   c.addEventListener('touchend', end, {capture: true, passive: false});
   c.addEventListener('touchcancel', function(e){ stop(e); cancelPress(); pinch = null; settle = false; }, {capture: true, passive: false});
 })();
 ready.then(function(){
-  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per spostare il puntatore (per esempio un edificio da piazzare: si piazza dove alzi il dito); con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
+  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per il riquadro di selezione (più unità insieme); mentre piazzi un edificio il trascinamento lo sposta e si piazza dove alzi il dito; con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
   startBtn.hidden = false;
   startBtn.onclick = function(){
     loading.hidden = true;
