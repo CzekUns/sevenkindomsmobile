@@ -6,4 +6,4 @@ Sorgenti del gioco: https://sourceforge.net/projects/skfans/ — le cinque modif
 
 Comandi: sul PC il mouse come nell'originale (sinistro seleziona, destro ordina); la visuale si sposta tenendo premuto il destro e trascinando, portando il puntatore al bordo della mappa, con la rotella (su e giù) o cliccando sulla minimappa. Sul telefono, tenuto di lato: tocco = sinistro, pressione lunga = destro, dito trascinato = sposta la visuale. I salvataggi restano nel browser.
 
-Versione con le mod: https://ilconsulentelogistico-hue.github.io/seven-kingdoms-play/mod/ — stessi dati, salvataggi separati. Mod presenti: statistiche di attacco e difesa nella scheda delle unità.
+Versione con le mod: https://ilconsulentelogistico-hue.github.io/seven-kingdoms-play/mod/ — stessi dati, salvataggi separati. Mod presenti: statistiche di attacco e difesa nella scheda delle unità; pulsante Rename per unità e città.
