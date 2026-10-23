@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Seven Kingdoms · MOD</title>
+<style>
+  :root{color-scheme:dark;--bg:#0e0c09;--ink:#f0e5c9;--muted:#b4a789;--bronze:#c9a46a}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,sans-serif;overflow:hidden}
+  #stage{position:fixed;inset:0;display:grid;place-items:center}
+  /* The game draws 800×600; the canvas keeps that ratio and fills the screen. */
+  canvas{display:block;width:min(100vw,calc(100vh * 4 / 3));height:min(100vh,calc(100vw * 3 / 4));image-rendering:auto;background:#000;outline:none}
+  #loading{position:fixed;inset:0;display:grid;place-content:center;gap:10px;text-align:center;background:var(--bg);z-index:5}
+  #loading h1{font:600 26px Georgia,serif;margin:0;letter-spacing:.04em}
+  #loading p{margin:0;color:var(--muted)}
+  #bar{width:min(320px,80vw);height:6px;border:1px solid var(--bronze);border-radius:4px;overflow:hidden;margin:6px auto 0}
+  #bar i{display:block;height:100%;width:0;background:var(--bronze);transition:width .2s}
+  #loading button{margin-top:14px;padding:12px 22px;border:1px solid var(--bronze);border-radius:10px;background:#2a241b;color:var(--ink);font:600 16px system-ui,sans-serif}
+  #loading[hidden]{display:none}
+  #fault{white-space:pre-wrap;color:#e0906c;font-size:12px;max-width:min(560px,90vw);text-align:left}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas></div>
+<div id="loading">
+  <h1>Seven Kingdoms · MOD</h1>
+  <p id="status">Scarico i dati di gioco (circa 115 MB la prima volta)…</p>
+  <div id="bar"><i id="barFill"></i></div>
+  <button id="start" hidden>Gioca</button>
+  <pre id="fault"></pre>
+</div>
+<script>
+var MOD_DATA = [];
+// Browser build of Seven Kingdoms: Ancient Adversaries (GPL-2.0, 7kfans / Enlight).
+// Data packages mount under /data; saves and CONFIG.DAT live in /saves on IndexedDB.
+var status = document.getElementById('status'), fill = document.getElementById('barFill'), fault = document.getElementById('fault');
+var startBtn = document.getElementById('start'), loading = document.getElementById('loading');
+var ready = new Promise(function(resolve){ window.__ready = resolve; });
+var Module = {
+  canvas: document.getElementById('canvas'),
+  noInitialRun: true,
+  // The data packages sit in data/; everything else next to the page.
+  locateFile: function(path){ return /\.data$/.test(path) ? (MOD_DATA.indexOf(path) >= 0 ? 'data/' : '../data/') + path : path; },
+  preRun: [function(){
+    Module.ENV.SKDATA = '/data';
+    Module.ENV.SKCONFIG = '/saves-mod';
+    Module.FS.mkdir('/saves-mod');
+    Module.FS.mount(Module.IDBFS, {}, '/saves-mod');
+    Module.addRunDependency('saves');
+    Module.FS.syncfs(true, function(err){ if (err) console.error('saves', err); Module.removeRunDependency('saves'); });
+  }],
+  setStatus: function(text){ if (text) status.textContent = text.replace(/\(\d+\/\d+\)/, '').trim() || status.textContent; },
+  monitorRunDependencies: function(left){ if (left === 0) { fill.style.width = '100%'; window.__ready(); } },
+  onRuntimeInitialized: function(){},
+  print: function(t){ console.log(t); },
+  printErr: function(t){ console.warn(t); },
+  onAbort: function(what){ fault.textContent = 'Il gioco si è fermato: ' + what; loading.hidden = false; }
+};
+// Each data package reports its own download progress; the bar sums them.
+var progress = {};
+Module.setStatus = function(text){
+  var m = /Downloading data\.\.\. \((\d+)\/(\d+)\)/.exec(text || '');
+  if (m) { progress[text.length % 9] = +m[1] / +m[2]; }
+  if (text && !m) status.textContent = text;
+};
+window.addEventListener('error', function(e){ fault.textContent = 'Errore: ' + (e.message || e); });
+// Save files are written to IndexedDB a moment after each change and when the page goes away.
+var syncTimer = null;
+function persistSaves(){ if (syncTimer) return; syncTimer = setTimeout(function(){ syncTimer = null; Module.FS.syncfs(false, function(err){ if (err) console.error('syncfs', err); }); }, 1500); }
+document.addEventListener('visibilitychange', function(){ if (document.hidden && Module.FS) Module.FS.syncfs(false, function(){}); });
+window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(false, function(){}); });
+// Touch layer: the game only knows a mouse. A tap is a left click, a long press a right click,
+// a drag pans the map (sent as a right-button drag, which the game turns into scrolling).
+// Touches never reach SDL's own handlers.
+(function(){
+  var c = Module.canvas, press = null, LONG = 450, MOVE = 12;
+  function fire(type, t, button){ c.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, clientX: t.clientX, clientY: t.clientY, button: button, buttons: type === 'mouseup' ? 0 : (button === 2 ? 2 : 1)})); }
+  function stop(e){ e.stopImmediatePropagation(); if (e.cancelable) e.preventDefault(); }
+  c.addEventListener('touchstart', function(e){
+    stop(e); if (e.touches.length !== 1) { press = null; return; }
+    var t = e.touches[0]; press = {x: t.clientX, y: t.clientY, t: t, moved: false, timer: null};
+    fire('mousemove', t, 0);
+    press.timer = setTimeout(function(){ if (!press || press.moved) return; press.long = true; fire('mousedown', press.t, 2); setTimeout(function(){ fire('mouseup', press.t, 2); }, 60); }, LONG);
+  }, {capture: true, passive: false});
+  c.addEventListener('touchmove', function(e){
+    stop(e); if (!press || e.touches.length !== 1) return;
+    var t = e.touches[0]; press.t = t;
+    if (!press.moved && Math.hypot(t.clientX - press.x, t.clientY - press.y) > MOVE) {
+      press.moved = true; clearTimeout(press.timer);
+      if (!press.long) { press.panning = true; fire('mousedown', {clientX: press.x, clientY: press.y}, 2); }
+    }
+    fire('mousemove', t, press.panning ? 2 : 0);
+  }, {capture: true, passive: false});
+  function end(e){
+    stop(e); if (!press) return;
+    var p = press; press = null; clearTimeout(p.timer);
+    if (p.panning) { fire('mouseup', p.t, 2); return; }
+    if (p.long || p.moved) return;
+    fire('mousedown', p.t, 0); setTimeout(function(){ fire('mouseup', p.t, 0); }, 60);
+  }
+  c.addEventListener('touchend', end, {capture: true, passive: false});
+  c.addEventListener('touchcancel', function(e){ stop(e); if (press) { clearTimeout(press.timer); if (press.panning) fire('mouseup', press.t, 2); } press = null; }, {capture: true, passive: false});
+})();
+ready.then(function(){
+  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tieni il telefono di lato. Tocco = tasto sinistro, pressione lunga = tasto destro, trascina il dito per spostare la visuale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
+  startBtn.hidden = false;
+  startBtn.onclick = function(){
+    loading.hidden = true;
+    Module.canvas.focus();
+    // Saves and settings are flushed to IndexedDB every few seconds while playing.
+    setInterval(persistSaves, 5000);
+    Module.callMain([]);
+  };
+});
+</script>
+<script src="../data/ENCYC.js"></script>
+<script src="../data/ENCYC2.js"></script>
+<script src="../data/IMAGE.js"></script>
+<script src="../data/RESOURCE.js"></script>
+<script src="../data/SCENARI2.js"></script>
+<script src="../data/SCENARIO.js"></script>
+<script src="../data/SOUND.js"></script>
+<script src="../data/SPRITE.js"></script>
+<script src="../data/TUTORIAL.js"></script>
+<script src="../data/MUSIC.js"></script>
+<script src="7kaa.js"></script>
+</body>
+</html>
