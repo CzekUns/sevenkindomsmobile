@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novità Seven Kingdoms</title>
+<style>
+  :root {
+    --bg: #f4efe4; --card: #fffaf0; --text: #2b2418; --muted: #6b5f4b; --accent: #8a3b12; --line: #e0d5bf; --badge: #2f6b3a; --todo: #9a6b00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #1b1814; --card: #25211b; --text: #eee5d3; --muted: #b3a68c; --accent: #e0915c; --line: #3a342b; --badge: #6fbf7e; --todo: #e0b44c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 Georgia, "Times New Roman", serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.9rem; margin: 0 0 4px; color: var(--accent); }
+  h2 { font-size: 1.35rem; margin: 40px 0 6px; border-bottom: 2px solid var(--line); padding-bottom: 6px; }
+  h3 { font-size: 1.1rem; margin: 0 0 6px; }
+  p { margin: 6px 0 12px; }
+  a { color: var(--accent); }
+  .sub { color: var(--muted); margin-bottom: 18px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0 6px; }
+  .links a { background: var(--accent); color: #fff; text-decoration: none; padding: 9px 14px; border-radius: 6px; font-weight: bold; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; margin: 16px 0; }
+  .badge { display: inline-block; font: bold 0.75rem/1 system-ui, sans-serif; color: #fff; background: var(--badge); padding: 4px 8px; border-radius: 99px; margin-right: 6px; vertical-align: 2px; }
+  .badge.todo { background: var(--todo); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 10px; }
+  figure { margin: 0; }
+  figure img { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid var(--line); }
+  figcaption { font-size: 0.9rem; color: var(--muted); margin-top: 4px; }
+  .wide img { width: 100%; }
+  ul { margin: 6px 0 12px; padding-left: 22px; }
+  li { margin: 3px 0; }
+  .people { display: grid; gap: 10px; }
+  .people figure img { border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Novità di Seven Kingdoms</h1>
+  <div class="sub">Versione con le mod · aggiornata il 24/10/2026</div>
+  <div class="links">
+    <a href="../mod/">Gioca alla versione con le mod</a>
+    <a href="../">Versione originale</a>
+  </div>
+
+  <h2>Già nel gioco</h2>
+
+  <div class="card">
+    <h3><span class="badge">nuovo</span>Romani e Celti</h3>
+    <p>Due popoli nuovi, con la grafica di Codex: case, figure, ritratti, Seat of Power e nomi storici. Si scelgono nella schermata di nuova partita; compaiono anche come regni del computer e città indipendenti. Dei: <b>Jupiter</b> per i Romani, <b>Cernunnos</b> per i Celti (per ora combattono come il drago normanno, i poteri propri sono da decidere).</p>
+    <div class="grid">
+      <figure><a href="img/scelta-popolo.jpg"><img src="img/scelta-popolo.jpg" alt="Schermata di nuova partita con Celt e Roman" loading="lazy"></a><figcaption>Nuova partita: «Celt» e «Roman» nella sesta colonna.</figcaption></figure>
+      <figure><a href="img/roma.jpg"><img src="img/roma.jpg" alt="La città di Roma" loading="lazy"></a><figcaption>Partita da Romano: la città «Roma».</figcaption></figure>
+      <figure><a href="img/alesia.jpg"><img src="img/alesia.jpg" alt="La città di Alesia" loading="lazy"></a><figcaption>Partita da Celta: «Alesia» e le capanne rotonde.</figcaption></figure>
+      <figure><a href="img/nome-romano.jpg"><img src="img/nome-romano.jpg" alt="Un contadino romano" loading="lazy"></a><figcaption>Nomi romani: «Vibius Lepidus».</figcaption></figure>
+      <figure><a href="img/seat-romano.jpg"><img src="img/seat-romano.jpg" alt="Il Colosseo con Jupiter" loading="lazy"></a><figcaption>Il Seat of Power romano, il Colosseo, con Jupiter.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="badge">nuovo</span>Università e Mulino</h3>
+    <p><b>Università:</b> funziona come il fortino. Il professore è chi ha la Ricerca più alta, gli altri entrano come studenti e imparano fino al suo livello; chi esce è uno «Scientist». <b>Mulino:</b> i villaggi collegati crescono del 50% più in fretta.</p>
+    <div class="grid">
+      <figure><a href="img/universita.jpg"><img src="img/universita.jpg" alt="Pannello dell'Università" loading="lazy"></a><figcaption>Professore con Ricerca 20 e tre studenti.</figcaption></figure>
+      <figure><a href="img/scientist.jpg"><img src="img/scientist.jpg" alt="Studente uscito come Scientist" loading="lazy"></a><figcaption>Lo studente esce come «Scientist» con la Ricerca imparata.</figcaption></figure>
+      <figure><a href="img/mulino.jpg"><img src="img/mulino.jpg" alt="Pannello del Mulino" loading="lazy"></a><figcaption>Mulino collegato a un villaggio: +50% di crescita.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="badge">nuovo</span>Menu di costruzione in due pagine</h3>
+    <p>Con più di 11 edifici il menu non entrava più: ora la prima pagina ha 10 edifici, «More» e «Annulla», la seconda il resto e «Back».</p>
+    <figure class="wide"><a href="img/menu-pagine.jpg"><img src="img/menu-pagine.jpg" alt="Le due pagine del menu di costruzione" loading="lazy"></a><figcaption>Prima pagina, seconda pagina, ritorno alla prima.</figcaption></figure>
+  </div>
+
+  <div class="card">
+    <h3><span class="badge">nuovo</span>Salvataggi</h3>
+    <p>I salvataggi delle versioni precedenti si caricano ancora tutti, compresi quelli con il Grande Mercato e l'Università. Corretta anche l'animazione di crollo del Grande Mercato.</p>
+  </div>
+
+  <h2>In lavorazione</h2>
+  <div class="card">
+    <ul>
+      <li><span class="badge todo">da fare</span>Pulsanti dei nuovi edifici nel menu di costruzione: oggi sono immagini appoggiate sul pulsante, vanno rifatti come quelli originali.</li>
+      <li><span class="badge todo">da fare</span>Camminate di Romani e Celti: mancano dei passi e in alcune direzioni la figura guarda dalla parte sbagliata.</li>
+      <li><span class="badge todo">da fare</span>Abilità «Farming»: il Mulino prende contadini dai villaggi e li fa lavorare.</li>
+      <li><span class="badge todo">da fare</span>Metropoli: un villaggio grande il doppio, con 120 abitanti al massimo.</li>
+      <li><span class="badge todo">da fare</span>Ricerca all'Università: Grande Mercato e Mulino si possono ricercare (per ora restano anche già disponibili).</li>
+    </ul>
+  </div>
+
+  <h2>Grafica pronta di Codex, non ancora nel gioco</h2>
+  <p>Sei popoli completi (case, figure, ritratti, Seat of Power e dio), da approvare prima di metterli nel gioco.</p>
+
+  <div class="card people">
+    <h3>Sanniti · dio Mamerte · Santuario di Pietrabbondante</h3>
+    <figure><a href="img/samnite-seat.jpg"><img src="img/samnite-seat.jpg" alt="Seat of Power sannita" loading="lazy"></a></figure>
+    <div class="grid">
+      <figure><a href="img/samnite-case.jpg"><img src="img/samnite-case.jpg" alt="Case sannite" loading="lazy"></a><figcaption>Case</figcaption></figure>
+      <figure><a href="img/samnite-deo.jpg"><img src="img/samnite-deo.jpg" alt="Mamerte" loading="lazy"></a><figcaption>Mamerte</figcaption></figure>
+    </div>
+  </div>
+  <div class="card people">
+    <h3>Etruschi · dio Tinia · Tempio di Tinia</h3>
+    <figure><a href="img/etruscan-seat.jpg"><img src="img/etruscan-seat.jpg" alt="Seat of Power etrusco" loading="lazy"></a></figure>
+    <div class="grid">
+      <figure><a href="img/etruscan-case.jpg"><img src="img/etruscan-case.jpg" alt="Case etrusche" loading="lazy"></a><figcaption>Case</figcaption></figure>
+      <figure><a href="img/etruscan-deo.jpg"><img src="img/etruscan-deo.jpg" alt="Tinia" loading="lazy"></a><figcaption>Tinia</figcaption></figure>
+    </div>
+  </div>
+  <div class="card people">
+    <h3>Mongoli · dio Tengri · Ordu del Gran Khan</h3>
+    <figure><a href="img/mongol-seat.jpg"><img src="img/mongol-seat.jpg" alt="Seat of Power mongolo" loading="lazy"></a></figure>
+    <div class="grid">
+      <figure><a href="img/mongol-case.jpg"><img src="img/mongol-case.jpg" alt="Case mongole" loading="lazy"></a><figcaption>Case</figcaption></figure>
+      <figure><a href="img/mongol-deo.jpg"><img src="img/mongol-deo.jpg" alt="Tengri" loading="lazy"></a><figcaption>Tengri</figcaption></figure>
+    </div>
+  </div>
+  <div class="card people">
+    <h3>Iberi · dio Neton · Santuario iberico del Sole</h3>
+    <figure><a href="img/iberian-seat.jpg"><img src="img/iberian-seat.jpg" alt="Seat of Power iberico" loading="lazy"></a></figure>
+    <div class="grid">
+      <figure><a href="img/iberian-case.jpg"><img src="img/iberian-case.jpg" alt="Case iberiche" loading="lazy"></a><figcaption>Case</figcaption></figure>
+      <figure><a href="img/iberian-deo.jpg"><img src="img/iberian-deo.jpg" alt="Neton" loading="lazy"></a><figcaption>Neton</figcaption></figure>
+    </div>
+  </div>
+  <div class="card people">
+    <h3>Babilonesi · dio Marduk · Etemenanki</h3>
+    <figure><a href="img/babylon-seat.jpg"><img src="img/babylon-seat.jpg" alt="Seat of Power babilonese" loading="lazy"></a></figure>
+    <div class="grid">
+      <figure><a href="img/babylon-case.jpg"><img src="img/babylon-case.jpg" alt="Case babilonesi" loading="lazy"></a><figcaption>Case</figcaption></figure>
+      <figure><a href="img/babylon-deo.jpg"><img src="img/babylon-deo.jpg" alt="Marduk" loading="lazy"></a><figcaption>Marduk</figcaption></figure>
+    </div>
+  </div>
+  <div class="card people">
+    <h3>Cartaginesi · dio Baal Hammon · Tempio di Eshmun</h3>
+    <figure><a href="img/carthage-seat.jpg"><img src="img/carthage-seat.jpg" alt="Seat of Power cartaginese" loading="lazy"></a></figure>
+    <div class="grid">
+      <figure><a href="img/carthage-case.jpg"><img src="img/carthage-case.jpg" alt="Case cartaginesi" loading="lazy"></a><figcaption>Case</figcaption></figure>
+      <figure><a href="img/carthage-deo.jpg"><img src="img/carthage-deo.jpg" alt="Baal Hammon" loading="lazy"></a><figcaption>Baal Hammon</figcaption></figure>
+    </div>
+  </div>
+</main>
+</body>
+</html>
