@@ -34,6 +34,7 @@
   li { margin: 3px 0; }
   .people { display: grid; gap: 10px; }
   .people figure img { border-radius: 4px; }
+  .stato ol, .stato ul { margin-top: 2px; }
 </style>
 </head>
 <body>
@@ -44,6 +45,17 @@
     <a href="../mod/">Gioca alla versione con le mod</a>
     <a href="../">Versione originale</a>
   </div>
+
+<!--STATO-->
+  <div class="card stato">
+    <h3><span class="badge todo">in corso</span>A che punto sono · aggiornato 24/10 ore 11:40</h3>
+    <p><b>Sto facendo:</b> Metropoli come «grande villaggio»: la struttura con la fontana attaccata al villaggio, +140 abitanti, quartieri di casette che compaiono da soli mentre il villaggio cresce.</p>
+    <p><b>Poi, in quest'ordine:</b></p>
+    <ol><li>Risorse nuove (pietra, legno, sale) e edifici: Fonderia, Vasellame, Falegnameria accanto alle foreste, Saline in riva all&#x27;acqua; tutto vendibile al mercato.</li><li>Sanniti giocabili.</li><li>Casa stregata (Fryhtan addestrabili).</li><li>Popoli facoltativi: Etruschi, Mongoli, Iberi, Babilonesi, Cartaginesi.</li><li>Raccolta finale dei file dei giochi.</li></ol>
+    <p><b>Diario di oggi:</b></p>
+    <ul><li>11:35 — Camminate di Romani e Celti con lo scambio di gamba in tutte le direzioni (pubblicato).</li></ul>
+  </div>
+<!--/STATO-->
 
   <h2>Già nel gioco</h2>
 
@@ -105,8 +117,11 @@
 
   <div class="card">
     <h3><span class="badge">corretto</span>Camminate di Romani e Celti</h3>
-    <p>Due difetti: il gioco disegna specchiate le direzioni verso ovest, quindi la figura guardava dalla parte sbagliata; e da un passo all'altro la figura cambiava altezza fino a 12 pixel e i piedi saltavano. Ora in ogni direzione tutte le pose hanno la stessa altezza, i piedi stanno sulla stessa linea e verso ovest la figura guarda a sinistra.</p>
-    <figure class="wide"><a href="img/camminata-romana.jpg"><img src="img/camminata-romana.jpg" alt="La camminata romana nelle otto direzioni" loading="lazy"></a><figcaption>Le sei pose della camminata romana nelle otto direzioni, come le disegna il gioco (linea gialla: riferimento).</figcaption></figure>
+    <p>Ora le gambe si danno il cambio: sinistra avanti, gambe al centro, destra avanti, di nuovo al centro. Codex ha rifatto le pose partendo da quelle approvate; verso nord, dove non ci riusciva, ho specchiato io solo le gambe lasciando busto e scudo come erano. Le direzioni verso ovest sono lo specchio di quelle verso est, come per i popoli originali: la figura guarda dalla parte giusta e ha la stessa altezza in ogni passo.</p>
+    <div class="grid">
+      <figure><a href="img/camminata-romana-v3.jpg"><img src="img/camminata-romana-v3.jpg" alt="La camminata romana nelle otto direzioni" loading="lazy"></a><figcaption>Romani: le sei pose nelle otto direzioni, come le disegna il gioco.</figcaption></figure>
+      <figure><a href="img/camminata-celtica-v3.jpg"><img src="img/camminata-celtica-v3.jpg" alt="La camminata celtica nelle otto direzioni" loading="lazy"></a><figcaption>Celti: lo stesso.</figcaption></figure>
+    </div>
   </div>
 
   <div class="card">
