@@ -53,25 +53,57 @@
   let miniPointer = null;
   let drawPending = 0;
 
-  const codes = {ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40};
-  // SDL/Emscripten listens for DOM keyboard events. Keep arrows down while
-  // the virtual stick is displaced, and send repeat events for game menus
-  // and platforms that react to keydown rather than a polled key state.
-  function emit(key, type, repeat) {
-    const ev = new KeyboardEvent(type, {
-      key:key, code:key, keyCode:codes[key], which:codes[key],
-      bubbles:true, cancelable:true, repeat:!!repeat
-    });
-    window.dispatchEvent(ev);
+  // The game scrolls by right-button drags, not by synthetic arrow keys.
+  // In a real-game browser test, keyboard events produced no camera change,
+  // while an SDL right drag moved 62% of sampled world pixels.
+  let velocity={x:0,y:0,power:0};
+  let panStep=0, panning=false, panX=320,panY=350;
+  function dispatchMouse(type,x,y,held) {
+    const box=game.getBoundingClientRect();
+    game.dispatchEvent(new MouseEvent(type,{
+      bubbles:true,cancelable:true,button:2,buttons:held?2:0,
+      clientX:box.left+(x/game.width)*box.width,
+      clientY:box.top+(y/game.height)*box.height
+    }));
+  }
+  function finishPan() {
+    if (!panning) return;
+    dispatchMouse('mouseup',panX,panY,false);
+    panning=false;
+    panStep=0;
+  }
+  function panTick() {
+    if (!activePointer || velocity.power < .2 || !isActive) {
+      finishPan();
+      return;
+    }
+    // Reset the drag before the cursor reaches the edge. Releasing the
+    // right button between drags prevents moving the camera backwards.
+    if (!panning || panStep>=12) {
+      finishPan();
+      panX=320;panY=350;
+      dispatchMouse('mousemove',panX,panY,false);
+      dispatchMouse('mousedown',panX,panY,true);
+      panning=true;
+    }
+    panStep++;
+    const pixels=6+13*velocity.power;
+    panX=320-velocity.x*panStep*pixels;
+    panY=350-velocity.y*panStep*pixels;
+    dispatchMouse('mousemove',panX,panY,true);
   }
   function releaseKeys() {
-    for (const k of direction) emit(k,'keyup');
-    direction = [];
+    direction=[];
+    velocity={x:0,y:0,power:0};
+    finishPan();
   }
-  function changeKeys(next) {
-    for (const k of direction) if (!next.includes(k)) emit(k,'keyup');
-    for (const k of next) if (!direction.includes(k)) emit(k,'keydown');
-    direction = next;
+  function changeKeys(next,dx,dy,max) {
+    direction=next;
+    const dist=Math.hypot(dx,dy);
+    velocity=dist && next.length
+      ? {x:dx/dist,y:dy/dist,power:Math.min(1,dist/max)}
+      : {x:0,y:0,power:0};
+    if (!next.length) finishPan();
   }
   function joystickMove(e) {
     const r = joystick.getBoundingClientRect();
@@ -87,7 +119,7 @@
     if (dx > threshold) next.push('ArrowRight');
     if (dy < -threshold) next.push('ArrowUp');
     if (dy > threshold) next.push('ArrowDown');
-    changeKeys(next);
+    changeKeys(next,dx,dy,max);
   }
   function stopStick() {
     if (activePointer === null) return;
@@ -105,9 +137,8 @@
     try{joystick.setPointerCapture(e.pointerId);}catch(_){}
     joystick.classList.add('active');
     joystickMove(e);
-    timer=setInterval(()=>{
-      for(const k of direction) emit(k,'keydown',true);
-    }, 65);
+    panTick();
+    timer=setInterval(panTick,65);
   });
   joystick.addEventListener('pointermove',e=>{
     if (e.pointerId !== activePointer) return;
