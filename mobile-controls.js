@@ -2,6 +2,17 @@
 (function () {
   'use strict';
   const game = document.getElementById('canvas');
+  // The game normally discards its WebGL drawing buffer after presenting.
+  // Keep it readable on touch devices so a minimap-only canvas can magnify
+  // the real live minimap without touching the WebAssembly renderer.
+  const originalGetContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+    if (this === game && /^webgl2?$|^experimental-webgl$/i.test(type) &&
+        matchMedia('(pointer:coarse)').matches) {
+      attrs = Object.assign({},attrs,{preserveDrawingBuffer:true});
+    }
+    return originalGetContext.call(this,type,attrs);
+  };
   const source = {x:586, y:57, w:204, h:200}; // Seven Kingdoms 800x600 minimap interior.
   const root = document.body;
   const joystick = document.createElement('div');
