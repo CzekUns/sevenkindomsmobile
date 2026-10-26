@@ -60,7 +60,7 @@ try {
   await canvas.click({position:{x:670,y:371}});
   await page.waitForTimeout(1200);
   console.log('SPAWN_SCREEN_SINGLE_PLAYER=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
-  await canvas.click({position:{x:670,y:371}});
+  await canvas.click({position:{x:670,y:455}});
   await page.waitForTimeout(2000);
   console.log('SPAWN_SCREEN_NEW_GAME=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
   await probe('AFTER_CLICK_NEW');
