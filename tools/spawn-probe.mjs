@@ -94,6 +94,12 @@ try {
   });
   console.log('SPAWN_AFTER_GAME=' + JSON.stringify(afterGame));
   console.log('SPAWN_SCREEN_GAME=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
+  await canvas.click({position:{x:62,y:24}});
+  await page.waitForTimeout(1200);
+  console.log('SPAWN_SCREEN_KINGDOMS=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
+  await canvas.click({position:{x:155,y:24}});
+  await page.waitForTimeout(1200);
+  console.log('SPAWN_SCREEN_VILLAGES=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
   if (!afterGame.applied) throw new Error('Race distribution patch no longer active');
 } finally {
   console.log('BROWSER_ERRORS=' + JSON.stringify(errors.slice(-20)));
