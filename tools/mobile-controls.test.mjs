@@ -83,6 +83,33 @@ async function checkRoute(route) {
  const fault=await page.locator('#fault').textContent();
  assert.equal(fault?.trim(),'');
  await page.screenshot({path:'mobile-'+(route?'mod':'original')+'-game.png'});
+ const grabFrame=()=>page.evaluate(()=>{
+   const main=document.getElementById('canvas');
+   const off=document.createElement('canvas');
+   off.width=84;off.height=68;
+   const ctx=off.getContext('2d',{willReadFrequently:true});
+   ctx.drawImage(main,85,135,420,340,0,0,84,68);
+   return Array.from(ctx.getImageData(0,0,84,68).data);
+ });
+ const difference=(a,b)=>{
+   let changed=0;
+   for(let i=0;i<a.length;i+=4){
+     if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])>60) changed++;
+   }
+   return changed/(a.length/4);
+ };
+ const stillA=await grabFrame();
+ await page.waitForTimeout(1000);
+ const stillB=await grabFrame();
+ const navJoy=await page.locator('#mobileJoystick').boundingBox();
+ await page.mouse.move(navJoy.x+navJoy.width*.8,navJoy.y+navJoy.height*.5);
+ await page.mouse.down();
+ await page.waitForTimeout(1750);
+ await page.mouse.up();
+ await page.waitForTimeout(250);
+ const moved=await grabFrame();
+ console.log('CAMERA_MOTION_'+(route||'original')+'='+JSON.stringify({idleDifference:difference(stillA,stillB),joystickDifference:difference(stillB,moved)}));
+ await page.screenshot({path:'mobile-'+(route?'mod':'original')+'-after-joystick.png'});
  await page.locator('#mobileMiniPlus').click();
  await page.waitForTimeout(900);
  await page.screenshot({path:'mobile-'+(route?'mod':'original')+'-minimap-zoom.png'});
