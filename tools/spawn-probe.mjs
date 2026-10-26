@@ -54,6 +54,13 @@ try {
   await probe('AFTER_MAIN');
   console.log('FAULT=' + await page.locator('#fault').textContent());
   await page.screenshot({path:'probe-after.png'});
+  const canvas = page.locator('#canvas');
+  const menuJpeg = await canvas.screenshot({type:'jpeg',quality:35});
+  console.log('SPAWN_SCREEN_MENU=' + menuJpeg.toString('base64'));
+  await canvas.click({position:{x:400,y:235}});
+  await page.waitForTimeout(2500);
+  console.log('SPAWN_SCREEN_NEW_GAME=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
+  await probe('AFTER_CLICK_NEW');
 } finally {
   console.log('BROWSER_ERRORS=' + JSON.stringify(errors.slice(-20)));
   await browser.close();
