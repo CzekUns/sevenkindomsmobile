@@ -109,6 +109,24 @@ async function checkRoute(route) {
  await page.waitForTimeout(250);
  const moved=await grabFrame();
  console.log('CAMERA_MOTION_'+(route||'original')+'='+JSON.stringify({idleDifference:difference(stillA,stillB),joystickDifference:difference(stillB,moved)}));
+ const panBefore=await grabFrame();
+ function mouseDrag(type,x,y,buttons) {
+   return page.evaluate(({type,x,y,buttons})=>{
+     const c=document.getElementById('canvas'),r=c.getBoundingClientRect();
+     c.dispatchEvent(new MouseEvent(type,{bubbles:true,cancelable:true,button:2,
+       buttons,clientX:r.left+x/800*r.width,clientY:r.top+y/600*r.height}));
+   },{type,x,y,buttons});
+ }
+ await mouseDrag('mousemove',320,340,0);
+ await mouseDrag('mousedown',320,340,2);
+ for(let n=1;n<=15;n++) {
+   await mouseDrag('mousemove',320-n*10,340,2);
+   await page.waitForTimeout(70);
+ }
+ await mouseDrag('mouseup',170,340,0);
+ await page.waitForTimeout(200);
+ const panAfter=await grabFrame();
+ console.log('RIGHT_DRAG_MOTION_'+(route||'original')+'='+JSON.stringify({difference:difference(panBefore,panAfter)}));
  await page.screenshot({path:'mobile-'+(route?'mod':'original')+'-after-joystick.png'});
  await page.locator('#mobileMiniPlus').click();
  await page.waitForTimeout(900);
