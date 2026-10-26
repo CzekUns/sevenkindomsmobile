@@ -15,7 +15,7 @@
   const IDS = Array.from({length: TOTAL}, (_, i) => i + 1);
   const state = {
     applied: false, count: TOTAL, locationFound: false,
-    original: IDS.slice(), order: null, reason: 'waiting for game initialization'
+    original: IDS.slice(), order: null, address: null, reason: 'waiting for game initialization'
   };
   window.__raceSpawnFixState = state;
   let address = -1, attempts = 0, started = false;
@@ -94,6 +94,7 @@
         return;
       }
       state.locationFound = true;
+      state.address = address;
     }
     if (!valid(h, address)) {
       state.reason = 'race list changed or invalid — no memory changed';
