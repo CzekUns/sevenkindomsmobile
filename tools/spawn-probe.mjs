@@ -100,6 +100,24 @@ try {
   await canvas.click({position:{x:155,y:24}});
   await page.waitForTimeout(1200);
   console.log('SPAWN_SCREEN_VILLAGES=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
+  // Two independent 6-AI games: a repeatable regression probe for late races.
+  for (let trial = 2; trial <= 3; trial++) {
+    await page.reload({waitUntil:'domcontentloaded'});
+    await page.waitForFunction(() => !document.getElementById('start').hidden, {timeout:150000});
+    await page.locator('#start').click();
+    await page.waitForTimeout(2100);
+    await canvas.click({position:{x:670,y:371}});
+    await page.waitForTimeout(1100);
+    await canvas.click({position:{x:670,y:455}});
+    await page.waitForTimeout(1100);
+    for (let n=0; n<4; n++) await canvas.click({position:{x:980,y:485}});
+    await canvas.click({position:{x:437,y:895}});
+    await page.waitForTimeout(23000);
+    await canvas.click({position:{x:62,y:24}});
+    await page.waitForTimeout(1100);
+    console.log('SPAWN_SCREEN_KINGDOMS_' + trial + '=' + (await canvas.screenshot({type:'jpeg',quality:32})).toString('base64'));
+    console.log('SPAWN_FIX_TRIAL_' + trial + '=' + JSON.stringify(await page.evaluate(() => window.__raceSpawnFixState)));
+  }
   if (!afterGame.applied) throw new Error('Race distribution patch no longer active');
 } finally {
   console.log('BROWSER_ERRORS=' + JSON.stringify(errors.slice(-20)));
