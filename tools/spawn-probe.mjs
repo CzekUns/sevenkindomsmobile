@@ -52,6 +52,19 @@ try {
   await page.locator('#start').click({timeout:10000});
   await page.waitForTimeout(5000);
   await probe('AFTER_MAIN');
+  const fix = await page.evaluate(() => {
+    const st = window.__raceSpawnFixState;
+    const h = typeof HEAPU8 !== 'undefined' ? HEAPU8 : null;
+    const current = h && Number.isInteger(st?.address)
+      ? Array.from(h.subarray(st.address, st.address + 18)) : null;
+    return {state:st, current};
+  });
+  console.log('RACE_SPAWN_FIX=' + JSON.stringify(fix));
+  if (!fix.state?.applied || !fix.state?.locationFound ||
+      fix.current?.length !== 18 ||
+      [...fix.current].sort((a,b)=>a-b).some((n,i)=>n!==i+1)) {
+    throw new Error('Failed to install safe 18-race neutral-town shuffle');
+  }
   console.log('FAULT=' + await page.locator('#fault').textContent());
   await page.screenshot({path:'probe-after.png'});
   const canvas = page.locator('#canvas');
@@ -64,6 +77,24 @@ try {
   await page.waitForTimeout(2000);
   console.log('SPAWN_SCREEN_NEW_GAME=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
   await probe('AFTER_CLICK_NEW');
+  // Maximize AI kingdoms, then generate a complete single-player world.
+  await canvas.click({position:{x:980,y:485}});
+  await canvas.click({position:{x:980,y:485}});
+  await canvas.click({position:{x:980,y:485}});
+  await canvas.click({position:{x:980,y:485}});
+  await canvas.click({position:{x:437,y:895}});
+  await page.waitForTimeout(30000);
+  const afterGame=await page.evaluate(() => {
+    const st=window.__raceSpawnFixState;
+    return {
+      applied:st?.applied, reason:st?.reason,
+      order: st?.order,
+      current:st?.address != null ? Array.from(HEAPU8.subarray(st.address,st.address+18)) : null
+    };
+  });
+  console.log('SPAWN_AFTER_GAME=' + JSON.stringify(afterGame));
+  console.log('SPAWN_SCREEN_GAME=' + (await canvas.screenshot({type:'jpeg',quality:35})).toString('base64'));
+  if (!afterGame.applied) throw new Error('Race distribution patch no longer active');
 } finally {
   console.log('BROWSER_ERRORS=' + JSON.stringify(errors.slice(-20)));
   await browser.close();
