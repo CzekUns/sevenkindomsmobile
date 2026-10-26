@@ -109,6 +109,8 @@ async function checkRoute(route) {
  await page.waitForTimeout(250);
  const moved=await grabFrame();
  console.log('CAMERA_MOTION_'+(route||'original')+'='+JSON.stringify({idleDifference:difference(stillA,stillB),joystickDifference:difference(stillB,moved)}));
+ assert.ok(difference(stillB,moved)>difference(stillA,stillB)+.08,
+    'joystick must actually scroll the game world, not just animate the pad');
  const panBefore=await grabFrame();
  function mouseDrag(type,x,y,buttons) {
    return page.evaluate(({type,x,y,buttons})=>{
