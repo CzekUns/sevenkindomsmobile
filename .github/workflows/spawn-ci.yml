@@ -1,0 +1,29 @@
+name: Spawn diagnostics (MOD)
+
+on:
+  push:
+    branches:
+      - fix/spawn-civilta
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check MOD runtime and assets
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib
+          b=Path('mod/7kaa.wasm').read_bytes()
+          print('MOD WASM bytes:',len(b),'sha256:',hashlib.sha256(b).hexdigest())
+          print('WASM header:',b[:8].hex())
+          print('Original WASM bytes:',Path('7kaa.wasm').stat().st_size)
+          for name in ('mod/data/RESOURCE.js','mod/data/SPRITE.js'):
+              print(name,Path(name).stat().st_size)
+          PY
