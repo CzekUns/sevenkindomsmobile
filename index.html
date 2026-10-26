@@ -29,6 +29,7 @@
   #zoomReset{right:max(14px,env(safe-area-inset-right,0px));top:max(14px,env(safe-area-inset-top,0px));width:56px;height:48px;border-radius:10px}
   #fsBtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 </style>
+<link rel="stylesheet" href="mobile-controls.css">
 </head>
 <body>
 <div id="stage"><canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas></div>
@@ -216,6 +217,7 @@ ready.then(function(){
   };
 });
 </script>
+<script src="mobile-controls.js"></script>
 <script src="data/ENCYC.js"></script>
 <script src="data/ENCYC2.js"></script>
 <script src="data/IMAGE.js"></script>
