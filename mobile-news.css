@@ -17,3 +17,9 @@
 #skNewsAlertCount{background:#a84d25;color:#fff;border-radius:9px;padding:0 5px;min-width:16px;text-align:center;font-size:11px}
 #skNewsAlertCount[hidden]{display:none}
 @media (orientation:portrait),(pointer:fine){#skMobileNews{display:none!important}}
+
+/* Keep all game menus clickable. The dock opens only on request. */
+#skMobileNews[data-collapsed="true"] #skNewsTab,
+#skMobileNews[data-collapsed="true"] #skInboxTab,
+#skMobileNews[data-collapsed="true"] #skNewsGo{display:none!important}
+#skMobileNews[data-collapsed="true"] #skNewsHead{gap:8px}
