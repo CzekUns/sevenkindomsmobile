@@ -10,29 +10,26 @@ const civs=['ROMAN','CELT','SAMNITE','ETRUSCAN','MONGOL','IBERIAN','BABYLON','CA
 try {
  await page.goto('http://127.0.0.1:8765/mod/',{waitUntil:'domcontentloaded',timeout:120000});
  await page.waitForFunction(()=>!document.getElementById('start').hidden,{timeout:180000});
- const files=[['/data/RESOURCE/STD.SET',fs.readFileSync(dir+'/STD.SET')],
-             ...civs.map(x=>['/data/SPRITE/'+x+'.SPR',fs.readFileSync(dir+'/'+x+'.SPR')])];
- for(const [path,bytes] of files){
-   const result=await page.evaluate(({target,raw})=>{
-     const data=Uint8Array.from(raw);
-     let meta=null;
-     try {
-       const stat=Module.FS.stat(target);
-       meta={mode:stat.mode,permissions:Module.FS.nodePermissions(Module.FS.lookupPath(target).node,'w')};
-       Module.FS.unlink(target);
-       Module.FS.writeFile(target,data);
-     } catch(e) {
-       return {error:String(e),errno:e.errno,meta};
-     }
-     const check=Module.FS.readFile(target);
-     return {length:check.length,first:Array.from(check.slice(0,8)),meta};
-   },{target:path,raw:Array.from(bytes)});
-   console.log('RESTORED_VFS_INFO',path,JSON.stringify(result));
-   assert.equal(result.length,bytes.length,'VFS replacement byte count');
-   console.log('RESTORED_VFS',path,result.length);
- }
  await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve()});
  await page.locator('#start').click();
+ await page.waitForFunction(()=>window.SevenKingdomsRestoredWalk &&
+      ['installed','error'].includes(window.SevenKingdomsRestoredWalk.status),{timeout:90000});
+ const state=await page.evaluate(()=>window.SevenKingdomsRestoredWalk);
+ assert.equal(state.status,'installed','Restored sprites must be mounted before engine startup: '+JSON.stringify(state));
+ assert.equal(state.loaded,9,'All eight races and the STD.SET must load');
+ const sources=[['/data/RESOURCE/STD.SET','STD.SET'],
+                ...civs.map(x=>['/data/SPRITE/'+x+'.SPR',x+'.SPR'])];
+ for(const [file,name] of sources){
+   const expected=fs.readFileSync(dir+'/'+name);
+   const actual=await page.evaluate(path=>{
+     const x=Module.FS.readFile(path);
+     return {length:x.length,first:Array.from(x.slice(0,16)),last:Array.from(x.slice(-16))};
+   },file);
+   assert.equal(actual.length,expected.length,'VFS native sprite length '+file);
+   assert.deepEqual(actual.first,Array.from(expected.subarray(0,16)),'VFS native sprite prefix '+file);
+   assert.deepEqual(actual.last,Array.from(expected.subarray(-16)),'VFS native sprite suffix '+file);
+   console.log('RESTORED_VFS',file,actual.length);
+ }
  await page.waitForTimeout(750);
  function cpoint(x,y,r){return {x:r.x+x/800*r.width,y:r.y+y/600*r.height}}
  const r=await page.locator('#canvas').boundingBox();
