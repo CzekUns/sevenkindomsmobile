@@ -1,0 +1,56 @@
+{
+  "JUPITER": {
+    "total_frames": 192,
+    "enhanced_frames": 190,
+    "shadow_pixels_added": 7703,
+    "no_anchor": 0
+  },
+  "CERNUNNO": {
+    "total_frames": 192,
+    "enhanced_frames": 192,
+    "shadow_pixels_added": 7830,
+    "no_anchor": 0
+  },
+  "MAMERTE": {
+    "total_frames": 192,
+    "enhanced_frames": 191,
+    "shadow_pixels_added": 7634,
+    "no_anchor": 0
+  },
+  "TINIA": {
+    "total_frames": 192,
+    "enhanced_frames": 190,
+    "shadow_pixels_added": 7866,
+    "no_anchor": 0
+  },
+  "TENGRI": {
+    "total_frames": 192,
+    "enhanced_frames": 192,
+    "shadow_pixels_added": 7827,
+    "no_anchor": 0
+  },
+  "NETON": {
+    "total_frames": 192,
+    "enhanced_frames": 189,
+    "shadow_pixels_added": 7220,
+    "no_anchor": 0
+  },
+  "MARDUK": {
+    "total_frames": 192,
+    "enhanced_frames": 192,
+    "shadow_pixels_added": 7165,
+    "no_anchor": 0
+  },
+  "BAAL_HAM": {
+    "total_frames": 192,
+    "enhanced_frames": 192,
+    "shadow_pixels_added": 8135,
+    "no_anchor": 0
+  },
+  "summary": {
+    "gods": 8,
+    "frames": 1528,
+    "added_pixels": 61380,
+    "scope": "only added deities, no ancient/main original sprite assets changed"
+  }
+}

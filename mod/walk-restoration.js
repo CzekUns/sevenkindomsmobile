@@ -1,11 +1,14 @@
 /* Seven Kingdoms MOD — install native restored walking frames before callMain.
- * Only affects /mod/ and changes 8 MOD human sprites + the SFRAME table.
+ * Only affects /mod/ and mounts 8 new soldiers, 8 new deities, and SFRAME.
  * Never mutates the original game, WASM, or the compressed .data packages.
  */
 (function(){
   "use strict";
   const races=["ROMAN","CELT","SAMNITE","ETRUSCAN","MONGOL","IBERIAN","BABYLON","CARTHAGE"];
-  const items=[["/data/RESOURCE/STD.SET","STD.SET"],...races.map(name=>["/data/SPRITE/"+name+".SPR",name+".SPR"])];
+  const gods=["JUPITER","CERNUNNO","MAMERTE","TINIA","TENGRI","NETON","MARDUK","BAAL_HAM"];
+  const items=[["/data/RESOURCE/STD.SET","STD.SET","god-shadow-candidate/STD.SET"],
+    ...races.map(name=>["/data/SPRITE/"+name+".SPR",name+".SPR","sprite-restoration-candidate/"+name+".SPR"]),
+    ...gods.map(name=>["/data/SPRITE/"+name+".SPR",name+".SPR","god-shadow-candidate/"+name+".SPR"])];
   const state={status:"pending",loaded:0,total:items.length,error:null};
   window.SevenKingdomsRestoredWalk=state;
   let inFlight;
@@ -25,8 +28,7 @@
     if(inFlight)return inFlight;
     inFlight=(async function(){
       state.status="loading";state.error=null;
-      const blobs=await Promise.all(items.map(async ([target,name])=>{
-        const url="sprite-restoration-candidate/"+name;
+      const blobs=await Promise.all(items.map(async ([target,name,url])=>{
         const response=await fetch(url,{cache:"no-cache"});
         if(!response.ok)throw new Error("Cannot download "+name+" (HTTP "+response.status+")");
         const bytes=new Uint8Array(await response.arrayBuffer());

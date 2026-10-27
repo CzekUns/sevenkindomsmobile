@@ -1,0 +1,48 @@
+name: Audit all classic sprites for shadows
+on:
+  push:
+    branches: [feat/ground-shadows-classic-characters]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          python -m pip install pillow
+          npm install --no-save playwright
+      - run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/ground-shadow.log 2>&1 &
+          node tools/export_all_ground_units.mjs
+          python tools/audit_all_ground_units.py
+      - name: Enhance all eight new deity animations (human sprites already done)
+        run: |
+          python tools/enhance_deity_shadows.py
+          python tools/test-deity-shadows.py
+      - name: Test game with expanded sixteen-unit sprite patch
+        run: |
+          mkdir -p mod/god-shadow-candidate
+          cp god-shadow-output/*.SPR god-shadow-output/STD.SET god-shadow-output/REPORT.json mod/god-shadow-candidate/
+          cp -r god-shadow-output/previews mod/god-shadow-candidate/
+          node tools/test-restored-sprites.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: deity-shadow-previews-and-archives
+          path: god-shadow-output/
+      - name: Store checked deity sprite patches
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mod/god-shadow-candidate
+          git diff --cached --quiet || git commit -m "assets: contact shadows on eight added gods [skip ci]"
+          git push origin HEAD:$GITHUB_REF_NAME
