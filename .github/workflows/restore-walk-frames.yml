@@ -44,6 +44,9 @@ jobs:
           cp sprite-restoration-output/STD.SET mod/sprite-restoration-candidate/
           cp sprite-restoration-output/REPORT.json mod/sprite-restoration-candidate/
           cp sprite-restoration-output/missing-frames.csv mod/sprite-restoration-candidate/
+          # Discard obsolete concept frames (especially the previous F5 drawings).
+          # Merging folders would silently leave 128 invalid PNGs in this PR.
+          rm -rf mod/sprite-restoration-candidate/contact-sheets mod/sprite-restoration-candidate/new-frames
           cp -r sprite-restoration-output/contact-sheets mod/sprite-restoration-candidate/
           cp -r sprite-restoration-output/new-frames mod/sprite-restoration-candidate/
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/restored-game-server.log 2>&1 &
