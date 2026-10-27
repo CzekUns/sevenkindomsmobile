@@ -30,6 +30,7 @@ try{
     await page.waitForTimeout(24000);
     await page.locator('#skNewsToggle').click();
     assert.equal((await page.evaluate(()=>SevenKingdomsMobileNews.state())).expanded,true);
+    await page.waitForTimeout(650); // let the throttled WebGL magnifier render a frame
     const nativeSample=await page.evaluate(()=>{
       const lens=document.getElementById('skNewsImage');
       const pixels=lens.getContext('2d').getImageData(0,0,lens.width,lens.height).data;
