@@ -1,0 +1,186 @@
+{
+  "M-NE": {
+    "cutoff": 31,
+    "sizes": {
+      "external": 65,
+      "internal": 59
+    },
+    "angles": [
+      -57,
+      57
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "M-SE": {
+    "cutoff": 36,
+    "sizes": {
+      "external": 77,
+      "internal": 80
+    },
+    "angles": [
+      51,
+      -51
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "M-SW": {
+    "cutoff": 36,
+    "sizes": {
+      "external": 77,
+      "internal": 72
+    },
+    "angles": [
+      51,
+      -51
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "M-NW": {
+    "cutoff": 31,
+    "sizes": {
+      "external": 65,
+      "internal": 59
+    },
+    "angles": [
+      -57,
+      57
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "GM-NE": {
+    "cutoff": 36,
+    "sizes": {
+      "external": 82,
+      "internal": 57
+    },
+    "angles": [
+      -57,
+      57
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "GM-SE": {
+    "cutoff": 36,
+    "sizes": {
+      "external": 79,
+      "internal": 94
+    },
+    "angles": [
+      51,
+      -51
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "GM-SW": {
+    "cutoff": 36,
+    "sizes": {
+      "external": 79,
+      "internal": 73
+    },
+    "angles": [
+      51,
+      -51
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "GM-NW": {
+    "cutoff": 36,
+    "sizes": {
+      "external": 82,
+      "internal": 57
+    },
+    "angles": [
+      -57,
+      57
+    ],
+    "same_native_scale": true,
+    "shadow_fixed": true,
+    "z_order": "shadow->internal->external->torso",
+    "phases": [
+      0.0,
+      0.45,
+      0.9,
+      1.0,
+      0.55,
+      0.15
+    ]
+  },
+  "QA": {
+    "modified_frames": 48,
+    "non_diagonal_ROMAN_identical": true,
+    "all_non_Roman_sprites_untouched": true,
+    "native_loading_not_changed": true,
+    "visual_review_required": true,
+    "not_approved_for_merge": true
+  }
+}
