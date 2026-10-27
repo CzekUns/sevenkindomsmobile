@@ -1,0 +1,29 @@
+name: Verify restored sprites in real MOD
+on:
+  push:
+    branches: [feature/restore-missing-walk-frames]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-game-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright package
+        run: npm install --no-save playwright
+      - name: Start actual Seven Kingdoms and inject native restored sprites
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/http.log 2>&1 &
+          node tools/test-restored-sprites.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: restored-sprites-gameplay-screenshot
+          path: restored-sprite-mod-game.png
+          if-no-files-found: ignore
