@@ -145,26 +145,29 @@ def rgba(im,scale=3):
             if v!=255:p[x,y]=(60+v*29%165,50+v*19%170,40+v*13%170,255)
     return out.resize((im.width*scale,im.height*scale),Image.Resampling.NEAREST)
 
-def previews(race,shots):
+def previews(race,shots,mode):
+    """Include both normal walk M and walking-in-guard-mode GM in visual QA."""
     dst=OUT/"contact-sheets";dst.mkdir(exist_ok=True,parents=True)
     sheet=Image.new("RGB",(770,1200),(30,32,39))
     d=ImageDraw.Draw(sheet)
-    d.text((14,10),race+" | M walking cycles | original 1-3, transitions 4 and 6",fill=(238,233,211))
+    d.text((14,10),race+" | "+mode+" walk | F4,F6 native motion transitions",fill=(238,233,211))
     animation=[]
     for direc in range(8):
-        for i,im in enumerate(shots[("M",direc)]):
+        for i,im in enumerate(shots[(mode,direc)]):
             x=16+i*124;y=34+direc*144
             d.rectangle((x,y,x+120,y+138),fill=(62,64,73))
-            d.text((x+4,y+4),f"D{direc} / F{i+1}",fill=(120,215,137) if i>=3 else (235,191,93))
+            d.text((x+4,y+4),f"D{direc} / F{i+1}",
+                   fill=(120,215,137) if i in (3,5) else (235,191,93))
             tile=rgba(im,2)
             sheet.paste(tile,(x+(120-tile.width)//2,y+23),tile)
             frame=Image.new("RGB",(140,150),(56,57,67))
             img=rgba(im,3)
             frame.paste(img,((140-img.width)//2,5),img)
-            ImageDraw.Draw(frame).text((3,2),race+" / "+str(direc),(230,220,191))
+            ImageDraw.Draw(frame).text((3,2),race+" / "+mode+" / "+str(direc),(230,220,191))
             animation.append(frame)
-    sheet.save(dst/(race+"-walk.png"))
-    animation[0].save(dst/(race+"-walk.gif"),save_all=True,append_images=animation[1:],duration=110,loop=0)
+    suffix="" if mode=="M" else "-GM"
+    sheet.save(dst/(race+suffix+"-walk.png"))
+    animation[0].save(dst/(race+suffix+"-walk.gif"),save_all=True,append_images=animation[1:],duration=110,loop=0)
 
 def repack(source,meta,replacements):
     buf=bytearray();entries=[]
@@ -224,7 +227,7 @@ def main():
                                 "original_sequence":"A,B,C,C,B,A","replacement_sequence":"A,B,C,D,B,E",
                                 "replace_records":",".join(seq[x]["file"] for x in (3,4,5)),
                                 "authored_slots":"4,6","unique_after":len({sha(x) for x in complete})})
-        previews(race,shots)
+        for mode in MODES:previews(race,shots,mode)
         reblob=bytearray()
         for fr in existing:
             if fr["id"] in rewritten:payload=rewritten[fr["id"]]
