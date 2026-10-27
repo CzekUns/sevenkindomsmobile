@@ -42,6 +42,22 @@ try{
       return palette.size;
     });
     console.log('NATIVE_NEWS_PIXELS_'+label+'='+nativeSample);
+    const extra=await page.evaluate(()=>{
+      const c=document.getElementById('canvas'),off=document.createElement('canvas');
+      off.width=562;off.height=95;
+      const ctx=off.getContext('2d');ctx.drawImage(c,0,502,562,95,0,0,562,95);
+      const bytes=ctx.getImageData(0,0,562,95).data;
+      const set=new Set();
+      for(let y=5;y<95;y+=8)for(let x=10;x<562;x+=8){
+        const i=4*(y*562+x);set.add(bytes[i]+'-'+bytes[i+1]+'-'+bytes[i+2]);
+      }
+      return {sourceColors:set.size, canvasWidth:c.width,canvasHeight:c.height};
+    });
+    console.log('SOURCE_NEWS_PIXELS_'+label+'='+JSON.stringify(extra));
+    if(nativeSample<=20){
+      console.log('DEBUG_NEWS_'+label+'='+(await page.locator('#skNewsImage').screenshot({type:'jpeg',quality:45})).toString('base64'));
+      console.log('DEBUG_GAME_'+label+'='+(await page.locator('#canvas').screenshot({type:'jpeg',quality:35})).toString('base64'));
+    }
     assert.ok(nativeSample>20,'magnified native news must contain actual game pixels');
     await page.screenshot({path:'mobile-news-'+label+'.png'});
     // Native magnified message must forward a real game click to the native
