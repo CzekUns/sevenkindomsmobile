@@ -29,6 +29,7 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/egypt-preview-server.log 2>&1 &
           node tools/export_egyptian_reference.mjs
           python tools/egyptian_leg_reference.py
+          python tools/egyptian_roman_hybrid_preview.py
       - uses: actions/upload-artifact@v4
         with:
           name: egyptian-roman-diagonal-reference
