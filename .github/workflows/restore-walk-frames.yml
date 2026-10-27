@@ -1,7 +1,7 @@
 name: Produce candidate restored sprites
 on:
   push:
-    branches: [feature/restore-missing-walk-frames]
+    branches: [feature/restore-missing-walk-frames, fix/walk-se-leg-alternation-east-audit]
   workflow_dispatch:
 permissions:
   contents: write
@@ -55,4 +55,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mod/sprite-restoration-candidate
           git diff --cached --quiet || git commit -m "assets: generated 256 candidate missing gait poses [skip ci]"
-          git push origin HEAD:feature/restore-missing-walk-frames
+          git push origin HEAD:$GITHUB_REF_NAME
