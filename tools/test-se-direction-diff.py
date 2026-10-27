@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 """Regression gate: never change E, NW or any direction other than SE."""
 from pathlib import Path
+import subprocess
 from sys import path as sys_path
 sys_path.insert(0,str(Path(__file__).resolve().parent))
 from restore_walk_frames import tables,decode,sha,RACES,MODES
 
 ROOT=Path(__file__).resolve().parents[1]
-BEFORE=ROOT/"mod"/"sprite-restoration-candidate"
 AFTER=ROOT/"sprite-restoration-output"
-old_sprites,old_actions,old_frames=tables((BEFORE/"STD.SET").read_bytes())
+def baseline(name):
+    return subprocess.check_output(["git","show","origin/main:mod/sprite-restoration-candidate/"+name],cwd=ROOT)
+
+old_sprites,old_actions,old_frames=tables(baseline("STD.SET"))
 new_sprites,new_actions,new_frames=tables((AFTER/"STD.SET").read_bytes())
 assert old_sprites==new_sprites
 assert len(old_frames)==len(new_frames)
 assert len(old_actions)==len(new_actions)
 changes={}
 for race in RACES:
-    prior=(BEFORE/(race+".SPR")).read_bytes()
+    prior=baseline(race+".SPR")
     new=(AFTER/(race+".SPR")).read_bytes()
     info=old_sprites[race]
     a1=old_actions[info["first"]-1:info["first"]-1+info["count"]]
