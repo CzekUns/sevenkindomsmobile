@@ -1,0 +1,16 @@
+{
+  "phase": "VISUAL REVIEW BEFORE MERGE",
+  "races": 8,
+  "directions": 8,
+  "actions": [
+    "M",
+    "GM"
+  ],
+  "new_poses": 256,
+  "replaced_slots": 384,
+  "method": "reflected leg stride from genuine source art (procedural concept draft)",
+  "input_pattern": "A,B,C,C,B,A",
+  "output_pattern": "A,B,C,A,D,E",
+  "new_sprite_bytes": 1810079,
+  "caution": "Artwork generated; not artist-approved. Test poses for mirror artifacts."
+}
