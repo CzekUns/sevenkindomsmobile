@@ -50,7 +50,8 @@
 var MOD_DATA = ["RESOURCE.data", "SPRITE.data"];
 // Browser build of Seven Kingdoms: Ancient Adversaries (GPL-2.0, 7kfans / Enlight).
 // Data packages mount under /data; saves and CONFIG.DAT live in /saves on IndexedDB.
-var status = document.getElementById('status'), fill = document.getElementById('barFill'), fault = document.getElementById('fault');
+// window.status is a browser-owned string: never use "status" as a global variable.
+var statusLabel = document.getElementById('status'), fill = document.getElementById('barFill'), fault = document.getElementById('fault');
 var startBtn = document.getElementById('start'), loading = document.getElementById('loading');
 var retryBtn = document.getElementById('retry'), downloadReady = false;
 var lastDownloaded = 0, lastProgressAt = Date.now(), initialLoadAt = Date.now(), downloadStall = false;
@@ -69,7 +70,7 @@ var Module = {
     Module.addRunDependency('saves');
     Module.FS.syncfs(true, function(err){ if (err) console.error('saves', err); Module.removeRunDependency('saves'); });
   }],
-  setStatus: function(text){ if (text) status.textContent = text.replace(/\(\d+\/\d+\)/, '').trim() || status.textContent; },
+  setStatus: function(text){ if (text) statusLabel.textContent = text.replace(/\(\d+\/\d+\)/, '').trim() || statusLabel.textContent; },
   monitorRunDependencies: function(left){ if (left === 0) { fill.style.width = '100%'; window.__ready(); } },
   onRuntimeInitialized: function(){},
   print: function(t){ console.log(t); },
@@ -88,10 +89,10 @@ function refreshDownload(){
     if (downloadStall) { downloadStall = false; fault.textContent = ''; retryBtn.hidden = true; }
   }
   if (received) {
-    status.textContent = 'Dati ricevuti: ' + (received / 1048576).toFixed(1) + ' MB. Preparo il gioco…';
+    statusLabel.textContent = 'Dati ricevuti: ' + (received / 1048576).toFixed(1) + ' MB. Preparo il gioco…';
     fill.style.width = Math.max(2,Math.min(96,Math.round(received / (115*1048576)*96))) + '%';
   } else if (Date.now()-initialLoadAt > 8000) {
-    status.textContent = 'Connessione ai dati di gioco in corso…';
+    statusLabel.textContent = 'Connessione ai dati di gioco in corso…';
   }
   if (Date.now()-lastProgressAt > 40000 && !document.hidden) {
     downloadStall = true;
@@ -103,7 +104,7 @@ var progressTimer = setInterval(refreshDownload, 1200);
 Module.setStatus = function(text){
   if (downloadReady) return;
   if (/Downloading data/.test(text || '')) { refreshDownload(); return; }
-  if (text && !lastDownloaded) status.textContent = text;
+  if (text && !lastDownloaded) statusLabel.textContent = text;
 };
 function loadingError(message){
   if (downloadReady) return;
@@ -249,14 +250,14 @@ ready.then(function(){
   fill.style.width = '100%';
   retryBtn.hidden = true;
   if (downloadStall) fault.textContent = '';
-  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per il riquadro di selezione (più unità insieme); mentre piazzi un edificio il trascinamento lo sposta e si piazza dove alzi il dito; con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
+  statusLabel.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per il riquadro di selezione (più unità insieme); mentre piazzi un edificio il trascinamento lo sposta e si piazza dove alzi il dito; con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
   startBtn.hidden = false;
   startBtn.onclick = async function(){
     if (startBtn.disabled) return;
     startBtn.disabled = true;
     // The orientation/fullscreen request must remain in the synchronous tap gesture.
     if (matchMedia('(pointer: coarse)').matches) window.enterFullscreen();
-    status.textContent = 'Preparo le animazioni dei nuovi popoli…';
+    statusLabel.textContent = 'Preparo le animazioni dei nuovi popoli…';
     try {
       await window.installSevenKingdomsRestoredWalk();
     } catch (err) {
