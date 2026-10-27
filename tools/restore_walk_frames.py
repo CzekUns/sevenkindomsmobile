@@ -53,7 +53,7 @@ def tables(std):
     frames=[]
     for i,(p,b) in enumerate(record_data(std,"SFRAME"),1):
         frames.append({"id":i,"row":p,"name":fld(b,0,8),
-                       "file":fld(b,28,36),"w":number(b,22,25),"h":number(b,25,28),
+                       "file":fld(b,28,36),"x":number(b,14,18),"y":number(b,18,22),"w":number(b,22,25),"h":number(b,25,28),
                        "off":struct.unpack_from("<I",b,36)[0]})
     return sprites,acts,frames
 
@@ -165,7 +165,7 @@ def main():
     sp={"/data/SPRITE/"+race+".SPR":(inp/(race+".SPR")).read_bytes() for race in RACES}
     std=bytearray((inp/"STD.SET").read_bytes())
     sprites,actions,frames=tables(std)
-    results=[];replacement={}
+    results=[];replacement={};updated_ids=set()
     for race in RACES:
         assert race in sprites
         file="/data/SPRITE/"+race+".SPR"
@@ -186,7 +186,17 @@ def main():
                           make_pose(origin[1],5),make_pose(origin[2],6)]
                 assert len({sha(x) for x in complete})>=5,(race,mode,a["dir"])
                 shots[(mode,a["dir"])]=complete
-                for idx in (3,4,5):rewritten[seq[idx]["id"]]=encode(complete[idx])
+                for target_idx,source_idx in ((3,0),(4,1),(5,2)):
+                    dest,source=seq[target_idx],seq[source_idx]
+                    rewritten[dest["id"]]=encode(complete[target_idx])
+                    updated_ids.add(dest["id"])
+                    # A restored phase often has a different crop from its
+                    # original repeated frame. Keep source origin/size in
+                    # SFRAME so sprite pivot and bounding box stay coherent.
+                    for key,offset,length in (("x",14,4),("y",18,4),("w",22,3),("h",25,3)):
+                        value=str(source[key]).rjust(length).encode("ascii")
+                        assert len(value)==length,(key,value)
+                        std[dest["row"]+offset:dest["row"]+offset+length]=value
                 for idx in (4,5):
                     folder=OUT/"new-frames"/race/mode
                     folder.mkdir(parents=True,exist_ok=True)
@@ -219,7 +229,11 @@ def main():
             pos=struct.unpack_from("<I",std,fr["row"]+36)[0]
             restored,_=decode(blob,pos)
             source,_=decode(sp["/data/SPRITE/"+race+".SPR"],fr["off"])
-            assert restored.size==source.size or (fr["w"],fr["h"])==restored.size,(race,fr["id"],restored.size,source.size)
+            if fr["id"] in updated_ids:
+                b=std[fr["row"]:fr["row"]+40]
+                assert restored.size==(number(b,22,25),number(b,25,28)),(race,fr["id"],restored.size)
+            else:
+                assert restored.size==source.size,(race,fr["id"],restored.size,source.size)
     with (OUT/"missing-frames.csv").open("w",encoding="utf-8",newline="") as f:
         writer=csv.DictWriter(f,list(results[0].keys()))
         writer.writeheader();writer.writerows(results)
