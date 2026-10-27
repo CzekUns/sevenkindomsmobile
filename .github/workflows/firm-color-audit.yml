@@ -1,7 +1,7 @@
 name: Audit building faction colors
 on:
   push:
-    branches: [fix/firm-faction-colors-grand-market]
+    branches: [fix/firm-faction-colors-university]
   workflow_dispatch:
 permissions:
   contents: read
@@ -21,3 +21,4 @@ jobs:
           node tools/firm-color-audit.mjs
           node tools/firm-bitmap-stats.mjs
           node tools/firm-color-visual.mjs
+          node tools/university-faction-preview.mjs
