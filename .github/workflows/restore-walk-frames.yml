@@ -1,0 +1,58 @@
+name: Produce candidate restored sprites
+on:
+  push:
+    branches: [feature/restore-missing-walk-frames]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: restored-gait-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build-sprites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install toolkit and Chromium
+        run: |
+          python -m pip install pillow
+          npm install --no-save playwright
+      - name: Export true decompressed sprite assets from browser game
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/sprite-server.log 2>&1 &
+          node tools/export_sprite_sources.mjs
+      - name: Produce missing walking poses, updated native SPR and SET files
+        run: python tools/restore_walk_frames.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-restored-civilization-sprites
+          path: sprite-restoration-output/
+          if-no-files-found: warn
+      - name: Preserve source artwork, contact sheets and native SPR patches in this review branch
+        shell: bash
+        run: |
+          mkdir -p mod/sprite-restoration-candidate
+          cp sprite-restoration-output/*.SPR mod/sprite-restoration-candidate/
+          cp sprite-restoration-output/STD.SET mod/sprite-restoration-candidate/
+          cp sprite-restoration-output/REPORT.json mod/sprite-restoration-candidate/
+          cp sprite-restoration-output/missing-frames.csv mod/sprite-restoration-candidate/
+          # Discard obsolete concept frames (especially the previous F5 drawings).
+          # Merging folders would silently leave 128 invalid PNGs in this PR.
+          rm -rf mod/sprite-restoration-candidate/contact-sheets mod/sprite-restoration-candidate/new-frames
+          cp -r sprite-restoration-output/contact-sheets mod/sprite-restoration-candidate/
+          cp -r sprite-restoration-output/new-frames mod/sprite-restoration-candidate/
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/restored-game-server.log 2>&1 &
+          node tools/test-restored-sprites.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mod/sprite-restoration-candidate
+          git diff --cached --quiet || git commit -m "assets: generated 256 candidate missing gait poses [skip ci]"
+          git push origin HEAD:feature/restore-missing-walk-frames

@@ -207,13 +207,23 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
 ready.then(function(){
   status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per il riquadro di selezione (più unità insieme); mentre piazzi un edificio il trascinamento lo sposta e si piazza dove alzi il dito; con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
   startBtn.hidden = false;
-  startBtn.onclick = function(){
-    loading.hidden = true;
-    // On a phone: full screen and sideways (the tap on Gioca lets the page ask for it), then the MOD and full screen buttons.
+  startBtn.onclick = async function(){
+    if (startBtn.disabled) return;
+    startBtn.disabled = true;
+    // The orientation/fullscreen request must remain in the synchronous tap gesture.
     if (matchMedia('(pointer: coarse)').matches) window.enterFullscreen();
+    status.textContent = 'Preparo le animazioni dei nuovi popoli…';
+    try {
+      await window.installSevenKingdomsRestoredWalk();
+    } catch (err) {
+      fault.textContent = 'Non riesco a caricare le nuove animazioni: ' + String(err);
+      startBtn.disabled = false;
+      return; // Never boot a game with a partially replaced sprite table.
+    }
+    loading.hidden = true;
     window.showPhoneControls();
     Module.canvas.focus();
-    // Recolor only the University's fixed roof shades before FirmRes loads.
+    // Preserve existing University roof palette correction from main.
     if (window.SevenKingdomsUniversityRoof) window.SevenKingdomsUniversityRoof.apply();
     // Saves and settings are flushed to IndexedDB every few seconds while playing.
     setInterval(persistSaves, 5000);
@@ -225,6 +235,7 @@ ready.then(function(){
 <script src="../mobile-news.js"></script>
 <script src="spawn-fix.js"></script>
 <script src="university-faction-roof.js"></script>
+<script src="walk-restoration.js"></script>
 <script src="../data/ENCYC.js"></script>
 <script src="../data/ENCYC2.js"></script>
 <script src="../data/IMAGE.js"></script>
