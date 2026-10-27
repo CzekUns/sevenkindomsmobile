@@ -1,0 +1,32 @@
+name: Roman oblique sprite pixel inspection
+on:
+  push:
+    branches: [art/roman-native-oblique-rigid-legs]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: roman-oblique-inspect-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install pillow
+      - run: python tools/inspect_roman_native_walk.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-roman-inspection
+          path: mod/art-previews/roman-native-obliques
+      - name: Save candidate previews to branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mod/art-previews/roman-native-obliques
+          git diff --cached --quiet || git commit -m "art: native Roman walk inspection [skip ci]"
+          git push origin HEAD:$GITHUB_REF_NAME
