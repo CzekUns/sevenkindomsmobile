@@ -71,7 +71,21 @@ try{
           images});
       }
       const bigDuplicates=[...seen.entries()].filter(([h,files])=>files.length>1).map(([h,files])=>files);
+      const otherActionStats={};
+      const allActions=action.slice(sprite.first-1,sprite.first+sprite.count-1);
+      for(const a of allActions.filter(x=>x.action!=='M')){
+        const seq=frames.slice(a.first-1,a.first+a.count-1);
+        const sigs=[];
+        for(const fr of seq){
+          if(fr.off+4>file.length)throw new Error('BAD '+name+' '+fr.file);
+          const len=dv.getUint32(fr.off,true);
+          if(fr.off+len+4>file.length)throw new Error('OVERFLOW '+name+' '+fr.file);
+          sigs.push(hash(file.subarray(fr.off+4,fr.off+4+len)));
+        }
+        (otherActionStats[a.action]??=[]).push({dir:a.dir,n:a.count,unique:new Set(sigs).size});
+      }
       out.push({name,totalFileBytes:file.length,moveDirections:moves.length,
+        otherActionStats,
         frames:dirs.reduce((n,x)=>n+x.frameCount,0),uniqueFrames:seen.size,
         numberDuplicateGroups:bigDuplicates.length,duplicateGroups:bigDuplicates.slice(0,20),
         dirs:dirs.map(d=>({dir:d.dir,frames:d.frameCount,unique:d.uniques,pattern:d.pattern,
