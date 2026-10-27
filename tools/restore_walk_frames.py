@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Experimental gait restoration. Reads original binary sprite archives; never edits main."""
-import csv,hashlib,json,re,struct,zipfile
+import base64,csv,hashlib,io,json,re,struct,zipfile
 from pathlib import Path
 from PIL import Image,ImageDraw
 
@@ -239,6 +239,13 @@ def main():
             zipf.write(path,path.name)
         for path in (OUT/"new-frames").rglob("*.png"):zipf.write(path,path.relative_to(OUT))
         for path in (OUT/"contact-sheets").iterdir():zipf.write(path,path.relative_to(OUT))
+    # Compact visual samples in CI logs allow objective manual review of
+    # the generated artwork without opening/download of private build artifacts.
+    for sample,orientation in (("ROMAN",0),("CELT",3),("MONGOL",5)):
+        atlas=Image.open(OUT/"contact-sheets"/(sample+"-walk.png")).convert("RGB")
+        preview_strip=atlas.crop((0,34+orientation*144,770,34+(orientation+1)*144))
+        buf=io.BytesIO();preview_strip.save(buf,format="JPEG",quality=79,optimize=True)
+        print("RESTORE_VISUAL_"+sample+"="+base64.b64encode(buf.getvalue()).decode("ascii"))
     print("RESTORATION_SUMMARY="+json.dumps(manifest))
 
 if __name__=="__main__": main()
