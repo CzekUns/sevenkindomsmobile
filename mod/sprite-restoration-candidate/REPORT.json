@@ -6,9 +6,9 @@
     "M",
     "GM"
   ],
-  "new_poses": 256,
+  "new_poses": 272,
   "replaced_slots": 304,
-  "method": "two conservative motion transitions from intact original drawn poses; no leg reflection",
+  "method": "SE lower-leg counterstrides, otherwise conservative transitions; other directions visually unchanged",
   "input_pattern": "A,B,C,C,B,A",
   "output_pattern": "A,B,C,D,B,E",
   "new_sprite_bytes": 1825412,
