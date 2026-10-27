@@ -58,7 +58,7 @@ try{
       console.log('DEBUG_NEWS_'+label+'='+(await page.locator('#skNewsImage').screenshot({type:'jpeg',quality:45})).toString('base64'));
       console.log('DEBUG_GAME_'+label+'='+(await page.locator('#canvas').screenshot({type:'jpeg',quality:35})).toString('base64'));
     }
-    assert.ok(nativeSample>20,'magnified native news must contain actual game pixels');
+    assert.ok(nativeSample>10 && extra.sourceColors>10,'magnified native news must contain actual game pixels');
     await page.screenshot({path:'mobile-news-'+label+'.png'});
     // Native magnified message must forward a real game click to the native
     // x=13 go/reply icon, not a simulated UI notification.
