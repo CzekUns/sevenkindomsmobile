@@ -31,7 +31,9 @@ jobs:
       - name: Produce missing walking poses, updated native SPR and SET files
         run: python tools/restore_walk_frames.py
       - name: Confirm only SE bitmap frames changed and NW/Est stayed intact
-        run: python tools/test-se-direction-diff.py
+        run: |
+          git fetch origin main --depth=1
+          python tools/test-se-direction-diff.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
