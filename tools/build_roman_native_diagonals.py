@@ -38,12 +38,15 @@ def stroke_mask(im,top_x,foot_x,cut,foot_y):
         if yy<=cut or src[xx,yy] in (0,255):m[xx,yy]=0
     return mask
 
-def rigid_rotate(layer, pivot,angle_degrees):
+def rigid_rotate(layer, pivot,angle_degrees,translation_x=0):
     """Orthogonal transform only (scale 1), inverse affine nearest."""
     theta=math.radians(angle_degrees)
     co=math.cos(theta);si=math.sin(theta)
     px,py=pivot
-    affine=(co,si,px-co*px-si*py,-si,co,py+si*px-co*py)
+    target_x=px+translation_x
+    # The swing moves the hip pivot horizontally underneath the skirt.
+    # This is TRANSLATION, not a size or shape change.
+    affine=(co,si,px-co*target_x-si*py,-si,co,py+si*target_x-co*py)
     return layer.transform(layer.size,Image.Transform.AFFINE,affine,
                            resample=Image.Resampling.NEAREST,fillcolor=255)
 
@@ -123,7 +126,11 @@ def build(poses,mode,d):
       for role in ("internal","external"):
         layer,pivot,area=roles[role]
         angle=(theta if role=="external" else -theta)*t
-        transformed=rigid_rotate(layer,pivot,angle)
+        # Analogous to the approved prototype, the two hidden leg pivots
+        # drift apart so feet change places without intersecting at the ankle.
+        direction_sign=(1 if not down else -1)
+        drift=direction_sign*3.0*t*(1 if role=="external" else -1)
+        transformed=rigid_rotate(layer,pivot,angle,drift)
         # Rotation is orthonormal; pixel coverage may fluctuate by discretization.
         coverage=sum(v!=255 for v in transformed.tobytes())
         assert abs(coverage-area)<max(8,round(area*.30)),(mode,d,role,n,area,coverage)
