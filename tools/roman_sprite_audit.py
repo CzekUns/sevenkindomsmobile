@@ -20,6 +20,13 @@ for action in actions[meta["first"]-1:meta["first"]-1+meta["count"]]:
         edge=Counter(pixels[x,y] for y in range(max(0,h-8),h) for x in range(w) if pixels[x,y]!=255)
         occupied=[(x,y) for y in range(h) for x in range(w) if pixels[x,y]!=255]
         bottom=[x for y in range(max(0,h-6),h) for x in range(w) if pixels[x,y]!=255]
+        if i==action["first"]-1:
+            for index in (0,242,243,225,226):
+                points=[(x,y) for y in range(h) for x in range(w) if pixels[x,y]==index]
+                low=[(x,y) for x,y in points if y>=int(h*.70)]
+                print("    palette",index,"global",len(points),"lower",len(low),"extent",
+                    (min(x for x,y in low),min(y for x,y in low),max(x for x,y in low),max(y for x,y in low)) if low else None,
+                    "coords",low[:36])
         print("  frame",i-(action["first"]-1)+1,"size",w,h,"origin",f["x"],f["y"],
               "opaque",len(occupied),"bottom pixels",len(bottom),
               "bottom-width",max(bottom)-min(bottom) if bottom else 0,
