@@ -217,7 +217,9 @@ def main():
         blob=replacement["/data/SPRITE/"+race+".SPR"]
         for fr in (x for x in frames if x["name"]==race):
             pos=struct.unpack_from("<I",std,fr["row"]+36)[0]
-            decode(blob,pos,(fr["w"],fr["h"]))
+            restored,_=decode(blob,pos)
+            source,_=decode(sp["/data/SPRITE/"+race+".SPR"],fr["off"])
+            assert restored.size==source.size or (fr["w"],fr["h"])==restored.size,(race,fr["id"],restored.size,source.size)
     with (OUT/"missing-frames.csv").open("w",encoding="utf-8",newline="") as f:
         writer=csv.DictWriter(f,list(results[0].keys()))
         writer.writeheader();writer.writerows(results)
