@@ -14,9 +14,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install image toolkit
-        run: python -m pip install pillow
-      - name: Produce missing walking poses, updated sprite pack and preview GIFs
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install toolkit and Chromium
+        run: |
+          python -m pip install pillow
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Export true decompressed sprite assets from browser game
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/sprite-server.log 2>&1 &
+          node tools/export_sprite_sources.mjs
+      - name: Produce missing walking poses, updated native SPR and SET files
         run: python tools/restore_walk_frames.py
       - uses: actions/upload-artifact@v4
         if: always()
