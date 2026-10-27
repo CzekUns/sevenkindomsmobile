@@ -223,6 +223,8 @@ ready.then(function(){
     loading.hidden = true;
     window.showPhoneControls();
     Module.canvas.focus();
+    // Preserve existing University roof palette correction from main.
+    if (window.SevenKingdomsUniversityRoof) window.SevenKingdomsUniversityRoof.apply();
     // Saves and settings are flushed to IndexedDB every few seconds while playing.
     setInterval(persistSaves, 5000);
     Module.callMain([]);
@@ -232,6 +234,7 @@ ready.then(function(){
 <script src="../mobile-controls.js"></script>
 <script src="../mobile-news.js"></script>
 <script src="spawn-fix.js"></script>
+<script src="university-faction-roof.js"></script>
 <script src="walk-restoration.js"></script>
 <script src="../data/ENCYC.js"></script>
 <script src="../data/ENCYC2.js"></script>
