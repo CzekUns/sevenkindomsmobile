@@ -6,11 +6,11 @@
     "M",
     "GM"
   ],
-  "new_poses": 256,
-  "replaced_slots": 256,
-  "method": "two conservative motion transitions from intact original drawn poses; no leg reflection",
+  "new_poses": 272,
+  "replaced_slots": 304,
+  "method": "SE lower-leg counterstrides, otherwise conservative transitions; other directions visually unchanged",
   "input_pattern": "A,B,C,C,B,A",
   "output_pattern": "A,B,C,D,B,E",
-  "new_sprite_bytes": 1825413,
-  "caution": "Generated transitional poses require in-game visual review before publication."
+  "new_sprite_bytes": 1825412,
+  "caution": "SE contralateral walk candidate only; NW unchanged. Evaluate SE and E separately in gameplay."
 }
