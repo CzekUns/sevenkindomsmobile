@@ -1,0 +1,19 @@
+name: Mobile MOD startup and download recovery
+on:
+  push:
+    branches: [fix/mod-loading-stalled]
+  workflow_dispatch:
+jobs:
+  boot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - name: Test mobile happy path and failed network download
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/mod-test-server.log 2>&1 &
+          node tools/test-mobile-recovery.mjs
