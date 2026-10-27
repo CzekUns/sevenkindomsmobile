@@ -15,10 +15,19 @@ try {
  for(const [path,bytes] of files){
    const result=await page.evaluate(({target,raw})=>{
      const data=Uint8Array.from(raw);
-     Module.FS.writeFile(target,data);
+     let meta=null;
+     try {
+       const stat=Module.FS.stat(target);
+       meta={mode:stat.mode,permissions:Module.FS.nodePermissions(Module.FS.lookupPath(target).node,'w')};
+       Module.FS.unlink(target);
+       Module.FS.writeFile(target,data);
+     } catch(e) {
+       return {error:String(e),errno:e.errno,meta};
+     }
      const check=Module.FS.readFile(target);
-     return {length:check.length,first:Array.from(check.slice(0,8))};
+     return {length:check.length,first:Array.from(check.slice(0,8)),meta};
    },{target:path,raw:Array.from(bytes)});
+   console.log('RESTORED_VFS_INFO',path,JSON.stringify(result));
    assert.equal(result.length,bytes.length,'VFS replacement byte count');
    console.log('RESTORED_VFS',path,result.length);
  }
