@@ -1,0 +1,22 @@
+name: Roman walking sprite study
+on:
+  push:
+    branches: [fix/roman-walk-legs-shadow]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: roman-gait-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  roman-study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pillow
+      - name: Inspect Roman leg/shadow native palette
+        run: python tools/roman_sprite_audit.py
