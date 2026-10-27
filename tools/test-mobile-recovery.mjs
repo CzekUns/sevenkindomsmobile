@@ -9,7 +9,11 @@ try {
   await page.waitForFunction(()=>document.getElementById('start').hidden===false,{timeout:180000});
   assert.equal(await page.locator('#barFill').evaluate(x=>x.style.width),'100%');
   assert.equal(await page.locator('#retry').isVisible(),false);
-  console.log('MOBILE_BOOT_READY',await page.locator('#status').textContent());
+  console.log('MOBILE_BOOT_READY',JSON.stringify(await page.evaluate(()=>({
+    status:document.getElementById('status')?.textContent,
+    ready:window.downloadReady,button:document.getElementById('start').hidden,
+    bytes:window.lastDownloaded,fill:document.getElementById('barFill').style.width
+  }))));
   await page.locator('#start').click();
   await page.waitForFunction(()=>window.SevenKingdomsRestoredWalk &&
       ['installed','error'].includes(window.SevenKingdomsRestoredWalk.status),{timeout:90000});
