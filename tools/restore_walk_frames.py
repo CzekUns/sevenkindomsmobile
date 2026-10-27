@@ -198,7 +198,7 @@ def previews(race,shots,mode):
     dst=OUT/"contact-sheets";dst.mkdir(exist_ok=True,parents=True)
     sheet=Image.new("RGB",(770,1200),(30,32,39))
     d=ImageDraw.Draw(sheet)
-    d.text((14,10),race+" | "+mode+" walk | F4,F6 native motion transitions",fill=(238,233,211))
+    d.text((14,10),race+" | "+mode+" walk | SE alternates feet; NW unchanged",fill=(238,233,211))
     animation=[]
     for direc in range(8):
         for i,im in enumerate(shots[(mode,direc)]):
@@ -319,9 +319,9 @@ def main():
         writer=csv.DictWriter(f,list(results[0].keys()))
         writer.writeheader();writer.writerows(results)
     manifest={"phase":"VISUAL REVIEW BEFORE MERGE","races":len(RACES),"directions":8,
-              "actions":["M","GM"],"new_poses":len(RACES)*8*2*2,
+              "actions":["M","GM"],"new_poses":len(RACES)*8*2*2 + len(RACES)*2,
               "replaced_slots":len(RACES)*8*2*2 + len(RACES)*2*3,
-              "method":"two conservative motion transitions from intact original drawn poses; no leg reflection",
+              "method":"SE lower-leg counterstrides, otherwise conservative transitions; other directions visually unchanged",
               "input_pattern":"A,B,C,C,B,A","output_pattern":"A,B,C,D,B,E",
               "new_sprite_bytes":sum(len(x) for x in replacement.values()),
               "caution":"SE contralateral walk candidate only; NW unchanged. Evaluate SE and E separately in gameplay."}
