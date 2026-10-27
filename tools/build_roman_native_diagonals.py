@@ -191,7 +191,12 @@ def main():
     DEST.mkdir(parents=True,exist_ok=True)
     PREVIEW.mkdir(parents=True,exist_ok=True)
     raw=(SOURCE/"ROMAN.SPR").read_bytes()
-    std=bytearray((SOURCE/"STD.SET").read_bytes())
+    # The MOD actively loads the final god-shadow STD.SET (17 native assets).
+    # Never regress deity offsets by building from the older restoration table.
+    active_std=ROOT/"mod"/"god-shadow-candidate"/"STD.SET"
+    assert active_std.exists(),"Missing active MOD SFRAME index"
+    baseline=active_std.read_bytes()
+    std=bytearray(baseline)
     sprites,acts,frames=tables(std)
     obj=sprites["ROMAN"]
     roman_acts=acts[obj["first"]-1:obj["first"]-1+obj["count"]]
@@ -249,6 +254,19 @@ def main():
       else:
          assert new.size==(after["w"],after["h"])
     assert len(changed_ids)==48
+    # Outside Roman SFRAME records, the complete active table must be
+    # byte-identical (including all deity offsets and all unrelated resources).
+    protected=bytearray(baseline)
+    for f in old_frames:
+      # Roman offsets change when the archive is rebuilt; the four bounding
+      # fields change only for the 48 diagonal frames.
+      if f["id"] in changed_ids:
+        for at,length in ((14,4),(18,4),(22,3),(25,3)):
+          idx=f["row"]+at
+          protected[idx:idx+length]=std[idx:idx+length]
+      idx=f["row"]+36
+      protected[idx:idx+4]=std[idx:idx+4]
+    assert bytes(protected)==bytes(std),"Non-Roman SFRAME / gods or resources changed"
     report["QA"]={"modified_frames":len(changed_ids),"non_diagonal_ROMAN_identical":True,
       "all_non_Roman_sprites_untouched":True,"native_loading_not_changed":True,
       "visual_review_required":True,"not_approved_for_merge":True}
