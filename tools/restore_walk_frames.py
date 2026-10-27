@@ -159,13 +159,11 @@ def repack(source,meta,replacements):
 
 def main():
     OUT.mkdir(parents=True,exist_ok=True)
-    stxt,span,sm=metadata(SRC/"SPRITE.js")
-    rtxt,rs,rm=metadata(SRC/"RESOURCE.js")
-    original_sp=(SRC/"SPRITE.data").read_bytes()
-    original_rs=(SRC/"RESOURCE.data").read_bytes()
-    sp=members(original_sp,sm)
-    res=members(original_rs,rm)
-    std=bytearray(res["/data/RESOURCE/STD.SET"])
+    # The .data assets are LZ4-compressed: export the REAL decompressed
+    # game files through a live browser before running this script.
+    inp=ROOT/"restoration-source"
+    sp={"/data/SPRITE/"+race+".SPR":(inp/(race+".SPR")).read_bytes() for race in RACES}
+    std=bytearray((inp/"STD.SET").read_bytes())
     sprites,actions,frames=tables(std)
     results=[];replacement={}
     for race in RACES:
@@ -210,17 +208,13 @@ def main():
             struct.pack_into("<I",std,fr["row"]+36,pos)
         replacement[file]=bytes(reblob)
         print("GENERATED_RACE",race,"frames",len(existing),"old",len(blob),"new",len(reblob))
-    updated_res,res_meta=repack(original_rs,rm,{"/data/RESOURCE/STD.SET":bytes(std)})
-    assert len(updated_res)==len(original_rs)
-    assert rm==res_meta
-    updated_sp,sp_meta=repack(original_sp,sm,replacement)
-    js=stxt[:span[0]]+json.dumps(sp_meta,separators=(',',':'),ensure_ascii=False)+stxt[span[1]:]
-    (OUT/"SPRITE.data").write_bytes(updated_sp)
-    (OUT/"SPRITE.js").write_text(js,"utf-8")
-    (OUT/"RESOURCE.data").write_bytes(updated_res)
-    review=members(updated_sp,sp_meta)
+    # Write only the nine modified native files; no need to re-compress
+    # the original game's LZ4 Emscripten data packages.
+    (OUT/"STD.SET").write_bytes(std)
+    for gamepath,content in replacement.items():
+        (OUT/Path(gamepath).name).write_bytes(content)
     for race in RACES:
-        blob=review["/data/SPRITE/"+race+".SPR"]
+        blob=replacement["/data/SPRITE/"+race+".SPR"]
         for fr in (x for x in frames if x["name"]==race):
             pos=struct.unpack_from("<I",std,fr["row"]+36)[0]
             decode(blob,pos,(fr["w"],fr["h"]))
@@ -232,11 +226,14 @@ def main():
               "replaced_slots":len(RACES)*8*2*3,
               "method":"reflected leg stride from genuine source art (procedural concept draft)",
               "input_pattern":"A,B,C,C,B,A","output_pattern":"A,B,C,A,D,E",
-              "new_bytes":len(updated_sp),
+              "new_sprite_bytes":sum(len(x) for x in replacement.values()),
               "caution":"Artwork generated; not artist-approved. Test poses for mirror artifacts."}
     (OUT/"REPORT.json").write_text(json.dumps(manifest,indent=2),"utf-8")
     with zipfile.ZipFile(OUT/"seven-kingdoms-sprite-restoration.zip","w",zipfile.ZIP_DEFLATED,compresslevel=5) as zipf:
-        for path in [OUT/"SPRITE.data",OUT/"SPRITE.js",OUT/"RESOURCE.data",OUT/"REPORT.json",OUT/"missing-frames.csv"]:
+        for path in [OUT/"STD.SET",OUT/"REPORT.json",OUT/"missing-frames.csv"]:
+            zipf.write(path,path.name)
+        for race in RACES:
+            path=OUT/(race+".SPR")
             zipf.write(path,path.name)
         for path in (OUT/"new-frames").rglob("*.png"):zipf.write(path,path.relative_to(OUT))
         for path in (OUT/"contact-sheets").iterdir():zipf.write(path,path.relative_to(OUT))
