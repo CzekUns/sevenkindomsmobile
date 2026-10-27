@@ -5,6 +5,10 @@ on:
     branches: [feature/mobile-news-and-production-alerts]
   workflow_dispatch:
 
+concurrency:
+  group: mobile-news-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
