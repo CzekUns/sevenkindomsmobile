@@ -1,7 +1,7 @@
 name: Verify restored sprites in real MOD
 on:
   push:
-    branches: [feature/restore-missing-walk-frames]
+    branches: [feature/restore-missing-walk-frames, fix/walk-se-leg-alternation-east-audit]
   workflow_dispatch:
 permissions:
   contents: read
