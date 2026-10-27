@@ -21,13 +21,15 @@ try{
     await page.locator('#start').click();
     await page.waitForTimeout(900);
     assert.equal(await page.locator('#skMobileNews').isVisible(),true);
-    assert.equal((await page.evaluate(()=>SevenKingdomsMobileNews.state())).expanded,true);
+    assert.equal((await page.evaluate(()=>SevenKingdomsMobileNews.state())).expanded,false);
     await canvasTap(420,230);
     await page.waitForTimeout(900);
     await canvasTap(420,285);
     await page.waitForTimeout(1000);
     await canvasTap(270,560);
     await page.waitForTimeout(24000);
+    await page.locator('#skNewsToggle').click();
+    assert.equal((await page.evaluate(()=>SevenKingdomsMobileNews.state())).expanded,true);
     const nativeSample=await page.evaluate(()=>{
       const lens=document.getElementById('skNewsImage');
       const pixels=lens.getContext('2d').getImageData(0,0,lens.width,lens.height).data;
