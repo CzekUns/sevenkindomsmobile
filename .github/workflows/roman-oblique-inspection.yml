@@ -18,7 +18,15 @@ jobs:
         with:
           python-version: "3.11"
       - run: python -m pip install pillow
-      - run: python tools/inspect_roman_native_walk.py
+      - name: Render native source inspection and Roman-only edited candidate
+        run: |
+          python tools/inspect_roman_native_walk.py
+          python tools/build_roman_native_diagonals.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-roman-offline-patch-do-not-merge
+          path: roman-native-output/
+          if-no-files-found: error
       - uses: actions/upload-artifact@v4
         with:
           name: native-roman-inspection
