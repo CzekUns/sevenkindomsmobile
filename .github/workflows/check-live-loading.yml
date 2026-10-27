@@ -1,0 +1,21 @@
+name: Verify public MOD startup from phone browser
+on:
+  push:
+    branches: [fix/mod-loading-stalled]
+  workflow_dispatch:
+jobs:
+  public-phone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - run: node tools/check-live-loading.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-phone-loading-diagnostics
+          path: live-loading-diagnostic.png

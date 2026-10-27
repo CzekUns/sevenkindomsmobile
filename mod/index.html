@@ -42,6 +42,7 @@
   <p id="status">Scarico i dati di gioco (circa 115 MB la prima volta)…</p>
   <div id="bar"><i id="barFill"></i></div>
   <button id="start" hidden>Gioca</button>
+  <button id="retry" type="button" hidden>Riprova il caricamento</button>
   <a id="otherVersion" href="../">Vai alla versione originale</a>
   <pre id="fault"></pre>
 </div>
@@ -49,9 +50,13 @@
 var MOD_DATA = ["RESOURCE.data", "SPRITE.data"];
 // Browser build of Seven Kingdoms: Ancient Adversaries (GPL-2.0, 7kfans / Enlight).
 // Data packages mount under /data; saves and CONFIG.DAT live in /saves on IndexedDB.
-var status = document.getElementById('status'), fill = document.getElementById('barFill'), fault = document.getElementById('fault');
+// window.status is a browser-owned string: never use "status" as a global variable.
+var statusLabel = document.getElementById('status'), fill = document.getElementById('barFill'), fault = document.getElementById('fault');
 var startBtn = document.getElementById('start'), loading = document.getElementById('loading');
+var retryBtn = document.getElementById('retry'), downloadReady = false;
+var lastDownloaded = 0, lastProgressAt = Date.now(), initialLoadAt = Date.now(), downloadStall = false;
 var ready = new Promise(function(resolve){ window.__ready = resolve; });
+retryBtn.addEventListener('click', function(){ window.location.reload(); });
 var Module = {
   canvas: document.getElementById('canvas'),
   noInitialRun: true,
@@ -65,21 +70,56 @@ var Module = {
     Module.addRunDependency('saves');
     Module.FS.syncfs(true, function(err){ if (err) console.error('saves', err); Module.removeRunDependency('saves'); });
   }],
-  setStatus: function(text){ if (text) status.textContent = text.replace(/\(\d+\/\d+\)/, '').trim() || status.textContent; },
+  setStatus: function(text){ if (text) statusLabel.textContent = text.replace(/\(\d+\/\d+\)/, '').trim() || statusLabel.textContent; },
   monitorRunDependencies: function(left){ if (left === 0) { fill.style.width = '100%'; window.__ready(); } },
   onRuntimeInitialized: function(){},
   print: function(t){ console.log(t); },
   printErr: function(t){ console.warn(t); },
   onAbort: function(what){ fault.textContent = 'Il gioco si è fermato: ' + what; loading.hidden = false; }
 };
-// Each data package reports its own download progress; the bar sums them.
-var progress = {};
+// Real-time bytes from Emscripten download objects. Content-Length may be
+// compressed by a CDN, so only dependencies == 0 marks completion.
+function refreshDownload(){
+  if (downloadReady) return;
+  var entries = Object.values(Module.dataFileDownloads || {});
+  var received = entries.reduce(function(sum, item){ return sum + (Number(item.loaded) || 0); }, 0);
+  if (received > lastDownloaded) {
+    lastDownloaded = received;
+    lastProgressAt = Date.now();
+    if (downloadStall) { downloadStall = false; fault.textContent = ''; retryBtn.hidden = true; }
+  }
+  if (received) {
+    statusLabel.textContent = 'Dati ricevuti: ' + (received / 1048576).toFixed(1) + ' MB. Preparo il gioco…';
+    fill.style.width = Math.max(2,Math.min(96,Math.round(received / (115*1048576)*96))) + '%';
+  } else if (Date.now()-initialLoadAt > 8000) {
+    statusLabel.textContent = 'Connessione ai dati di gioco in corso…';
+  }
+  if (Date.now()-lastProgressAt > 40000 && !document.hidden) {
+    downloadStall = true;
+    fault.textContent = 'Il download non sta avanzando. Controlla la connessione o premi Riprova. I salvataggi non vengono cancellati.';
+    retryBtn.hidden = false;
+  }
+}
+var progressTimer = setInterval(refreshDownload, 1200);
 Module.setStatus = function(text){
-  var m = /Downloading data\.\.\. \((\d+)\/(\d+)\)/.exec(text || '');
-  if (m) { progress[text.length % 9] = +m[1] / +m[2]; }
-  if (text && !m) status.textContent = text;
+  if (downloadReady) return;
+  if (/Downloading data/.test(text || '')) { refreshDownload(); return; }
+  if (text && !lastDownloaded) statusLabel.textContent = text;
 };
-window.addEventListener('error', function(e){ fault.textContent = 'Errore: ' + (e.message || e); });
+function loadingError(message){
+  if (downloadReady) return;
+  fault.textContent = message;
+  retryBtn.hidden = false;
+}
+window.addEventListener('error', function(e){
+  loadingError('Errore di avvio: ' + (e.message || String(e)));
+});
+window.addEventListener('unhandledrejection', function(e){
+  loadingError('Download o inizializzazione non riusciti: ' + String(e.reason || 'errore sconosciuto'));
+});
+window.addEventListener('offline', function(){
+  loadingError('La connessione si è interrotta. Ricollegati e premi Riprova.');
+});
 // Save files are written to IndexedDB a moment after each change and when the page goes away.
 var syncTimer = null;
 function persistSaves(){ if (syncTimer) return; syncTimer = setTimeout(function(){ syncTimer = null; Module.FS.syncfs(false, function(err){ if (err) console.error('syncfs', err); }); }, 1500); }
@@ -205,14 +245,19 @@ window.addEventListener('pagehide', function(){ if (Module.FS) Module.FS.syncfs(
   c.addEventListener('touchcancel', function(e){ stop(e); cancelPress(); pinch = null; settle = false; }, {capture: true, passive: false});
 })();
 ready.then(function(){
-  status.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per il riquadro di selezione (più unità insieme); mentre piazzi un edificio il trascinamento lo sposta e si piazza dove alzi il dito; con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
+  downloadReady = true;
+  clearInterval(progressTimer);
+  fill.style.width = '100%';
+  retryBtn.hidden = true;
+  if (downloadStall) fault.textContent = '';
+  statusLabel.textContent = matchMedia('(pointer: coarse)').matches ? 'Pronto. Tocco = tasto sinistro; tieni premuto MOD e tocca = tasto destro. Trascina il dito per il riquadro di selezione (più unità insieme); mentre piazzi un edificio il trascinamento lo sposta e si piazza dove alzi il dito; con MOD premuto il trascinamento sposta la visuale. Due dita fanno lo zoom. Gioca va a schermo intero, in orizzontale.' : 'Pronto. Tasto sinistro seleziona, destro ordina; tieni premuto il destro e trascina per spostare la visuale (anche rotella, frecce, bordo dello schermo).';
   startBtn.hidden = false;
   startBtn.onclick = async function(){
     if (startBtn.disabled) return;
     startBtn.disabled = true;
     // The orientation/fullscreen request must remain in the synchronous tap gesture.
     if (matchMedia('(pointer: coarse)').matches) window.enterFullscreen();
-    status.textContent = 'Preparo le animazioni dei nuovi popoli…';
+    statusLabel.textContent = 'Preparo le animazioni dei nuovi popoli…';
     try {
       await window.installSevenKingdomsRestoredWalk();
     } catch (err) {
