@@ -17,11 +17,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm install --no-save playwright
       - run: python -m pip install pillow
       - name: Render native source inspection and Roman-only edited candidate
         run: |
           python tools/inspect_roman_native_walk.py
           python tools/build_roman_native_diagonals.py
+      - name: Smoke-test native Roman candidate without changing runtime deployment
+        run: |
+          cp roman-native-output/ROMAN.SPR mod/sprite-restoration-candidate/ROMAN.SPR
+          cp roman-native-output/STD.SET mod/god-shadow-candidate/STD.SET
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/roman-native-test.log 2>&1 &
+          node tools/test-restored-sprites.mjs
+      - name: Preserve offline Roman sprite binaries only in review branch
+        run: |
+          mkdir -p mod/art-previews/roman-native-obliques/native-candidate
+          cp roman-native-output/ROMAN.SPR roman-native-output/STD.SET mod/art-previews/roman-native-obliques/native-candidate/
       - uses: actions/upload-artifact@v4
         with:
           name: native-roman-offline-patch-do-not-merge
