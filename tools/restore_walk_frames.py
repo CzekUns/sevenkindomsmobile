@@ -95,28 +95,45 @@ def encode(im):
 
 def sha(im):return hashlib.sha256(im.tobytes()).hexdigest()
 
-def make_pose(src,variant):
-    """Reflect the leg stride below the hip around silhouette pivot; upper body unchanged."""
+def make_pose(src, reference, phase):
+    """Create a conservative indexed-palette transition, never mirror limbs.
+
+    The earlier candidate reflected every pixel below the hip. It detached
+    ankles, mirrored weapons/clothes below the waist and introduced phantom
+    feet. Preserve the *actual drawn anatomy* and gently warp the complete
+    lower-body raster towards the neighbouring source keyframe instead.
+    The original three artist-authored poses remain untouched.
+    """
     w,h=src.size
-    srcpx=src.load()
-    dst=src.copy();p=dst.load()
-    hip=round(h*.60)
-    band=[x for y in range(hip,min(hip+8,h)) for x in range(w) if srcpx[x,y]!=255]
-    pivot=round(sum(band)/len(band)) if band else (w-1)//2
-    stride_shift=0 if variant==5 else 1
-    for y in range(hip+1,h):
-        alpha=(y-hip)/max(1,h-hip)
-        if alpha<.30:continue
-        r=[srcpx[x,y] for x in range(w)]
-        for x in range(w):p[x,y]=255
-        for x,v in enumerate(r):
-            if v==255:continue
-            nx=round(x+alpha*(2*(pivot-x)+stride_shift))
-            if 0<=nx<w:p[nx,y]=v
-    if sha(dst)==sha(src):
-        for y in range(round(h*.82),h):
-            row=[p[x,y] for x in range(w)]
-            for x in range(w):p[x,y]=row[min(w-1,max(0,x+(1 if variant==5 else -1)))]
+    p=src.load()
+    q=reference.load()
+    def ankle_center(im):
+        ww,hh=im.size; v=im.load()
+        band=[x for y in range(int(hh*.72),hh)
+              for x in range(ww) if v[x,y]!=255]
+        return sum(band)/len(band) if band else (ww-1)/2
+    # The images are in local crop coordinates. Limit the displacement to
+    # 1–2 pixels because larger changes caused severe limb disconnection.
+    candidate=round((ankle_center(reference)-ankle_center(src))*.45)
+    if candidate==0:
+        candidate=1 if phase==4 else -1
+    candidate=max(-2,min(2,candidate))
+    dst=src.copy()
+    out=dst.load()
+    for y in range(int(h*.56),h):
+        t=(y/h-.56)/.44
+        shift=round(candidate*max(0.0,min(1.0,t))**1.25)
+        if not shift: continue
+        old=[p[x,y] for x in range(w)]
+        for x in range(w):out[x,y]=255
+        for x,v in enumerate(old):
+            if v!=255 and 0<=x+shift<w:out[x+shift,y]=v
+    # Never replace a valid source with a collapsed/empty frame.
+    old_opaque=sum(v!=255 for v in src.tobytes())
+    new_opaque=sum(v!=255 for v in dst.tobytes())
+    assert abs(new_opaque-old_opaque)<=max(3,int(old_opaque*.03)),(old_opaque,new_opaque)
+    assert sha(dst)!=sha(src),"Interpolated frame must actually differ"
+    assert set(dst.tobytes()).issubset(set(src.tobytes())),"Palette keys cannot change"
     return dst
 
 def rgba(im,scale=3):
@@ -132,7 +149,7 @@ def previews(race,shots):
     dst=OUT/"contact-sheets";dst.mkdir(exist_ok=True,parents=True)
     sheet=Image.new("RGB",(770,1200),(30,32,39))
     d=ImageDraw.Draw(sheet)
-    d.text((14,10),race+" | M walking cycles | original 1-3, restored 4-6",fill=(238,233,211))
+    d.text((14,10),race+" | M walking cycles | original 1-3, transitions 4 and 6",fill=(238,233,211))
     animation=[]
     for direc in range(8):
         for i,im in enumerate(shots[("M",direc)]):
@@ -182,11 +199,13 @@ def main():
                 seq=[lookup[i] for i in range(a["first"],a["first"]+6)]
                 origin=[decode(blob,f["off"],(f["w"],f["h"]))[0] for f in seq]
                 assert len({sha(x) for x in origin})==3,(race,mode,a["dir"])
-                complete=[origin[0],origin[1],origin[2],origin[0],
-                          make_pose(origin[1],5),make_pose(origin[2],6)]
+                complete=[origin[0],origin[1],origin[2],
+                          make_pose(origin[2],origin[1],4),
+                          origin[1],
+                          make_pose(origin[0],origin[1],6)]
                 assert len({sha(x) for x in complete})>=5,(race,mode,a["dir"])
                 shots[(mode,a["dir"])]=complete
-                for target_idx,source_idx in ((3,0),(4,1),(5,2)):
+                for target_idx,source_idx in ((3,2),(5,0)):
                     dest,source=seq[target_idx],seq[source_idx]
                     rewritten[dest["id"]]=encode(complete[target_idx])
                     updated_ids.add(dest["id"])
@@ -197,14 +216,14 @@ def main():
                         value=str(source[key]).rjust(length).encode("ascii")
                         assert len(value)==length,(key,value)
                         std[dest["row"]+offset:dest["row"]+offset+length]=value
-                for idx in (4,5):
+                for idx in (3,5):
                     folder=OUT/"new-frames"/race/mode
                     folder.mkdir(parents=True,exist_ok=True)
                     complete[idx].save(folder/f"D{a['dir']}-F{idx+1}.png")
                 results.append({"population":race,"action":mode,"direction":a["dir"],
-                                "original_sequence":"A,B,C,C,B,A","replacement_sequence":"A,B,C,A,D,E",
+                                "original_sequence":"A,B,C,C,B,A","replacement_sequence":"A,B,C,D,B,E",
                                 "replace_records":",".join(seq[x]["file"] for x in (3,4,5)),
-                                "authored_slots":"5,6","unique_after":len({sha(x) for x in complete})})
+                                "authored_slots":"4,6","unique_after":len({sha(x) for x in complete})})
         previews(race,shots)
         reblob=bytearray()
         for fr in existing:
@@ -239,11 +258,11 @@ def main():
         writer.writeheader();writer.writerows(results)
     manifest={"phase":"VISUAL REVIEW BEFORE MERGE","races":len(RACES),"directions":8,
               "actions":["M","GM"],"new_poses":len(RACES)*8*2*2,
-              "replaced_slots":len(RACES)*8*2*3,
-              "method":"reflected leg stride from genuine source art (procedural concept draft)",
-              "input_pattern":"A,B,C,C,B,A","output_pattern":"A,B,C,A,D,E",
+              "replaced_slots":len(RACES)*8*2*2,
+              "method":"two conservative motion transitions from intact original drawn poses; no leg reflection",
+              "input_pattern":"A,B,C,C,B,A","output_pattern":"A,B,C,D,B,E",
               "new_sprite_bytes":sum(len(x) for x in replacement.values()),
-              "caution":"Artwork generated; not artist-approved. Test poses for mirror artifacts."}
+              "caution":"Generated transitional poses require in-game visual review before publication."}
     (OUT/"REPORT.json").write_text(json.dumps(manifest,indent=2),"utf-8")
     with zipfile.ZipFile(OUT/"seven-kingdoms-sprite-restoration.zip","w",zipfile.ZIP_DEFLATED,compresslevel=5) as zipf:
         for path in [OUT/"STD.SET",OUT/"REPORT.json",OUT/"missing-frames.csv"]:
