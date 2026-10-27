@@ -9,6 +9,7 @@ try {
   await page.waitForFunction(()=>document.getElementById('start').hidden===false,{timeout:180000});
   assert.equal(await page.locator('#barFill').evaluate(x=>x.style.width),'100%');
   assert.equal(await page.locator('#retry').isVisible(),false);
+  assert.match(await page.locator('#status').textContent(),/Pronto\./,'Ready banner must replace the frozen Scarico message');
   console.log('MOBILE_BOOT_READY',JSON.stringify(await page.evaluate(()=>({
     status:document.getElementById('status')?.textContent,
     ready:window.downloadReady,button:document.getElementById('start').hidden,
