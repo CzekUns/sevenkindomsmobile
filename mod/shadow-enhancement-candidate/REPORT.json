@@ -1,0 +1,55 @@
+{
+  "ROMAN": {
+    "changed_frames": 236,
+    "shadow_pixels_added": 9435,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "CELT": {
+    "changed_frames": 235,
+    "shadow_pixels_added": 9758,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "SAMNITE": {
+    "changed_frames": 235,
+    "shadow_pixels_added": 8977,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "ETRUSCAN": {
+    "changed_frames": 232,
+    "shadow_pixels_added": 8859,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "MONGOL": {
+    "changed_frames": 235,
+    "shadow_pixels_added": 8691,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "IBERIAN": {
+    "changed_frames": 233,
+    "shadow_pixels_added": 8609,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "BABYLON": {
+    "changed_frames": 234,
+    "shadow_pixels_added": 9236,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "CARTHAGE": {
+    "changed_frames": 233,
+    "shadow_pixels_added": 8701,
+    "frames_without_shadow_marker": 0,
+    "total_frames": 238
+  },
+  "summary": {
+    "changed_frames": 1873,
+    "added_pixels": 72266,
+    "note": "Only transparent pixels near each character's original contact shadow became native palette index 0; sprite offsets and action tables unchanged"
+  }
+}
