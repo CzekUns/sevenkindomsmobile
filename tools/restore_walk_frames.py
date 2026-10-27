@@ -136,6 +136,54 @@ def make_pose(src, reference, phase):
     assert set(dst.tobytes()).issubset(set(src.tobytes())),"Palette keys cannot change"
     return dst
 
+
+def mirror_lower_stride(src):
+    """Opposite planted leg in the downward SE gait, with an anchored hip.
+
+    Unlike the old geometric tween, this performs an actual contralateral
+    replacement of the lower legs; the torso, weapon and facial details stay
+    at their original source pixels. The lower-body reflection is constant
+    from hip to ground: NEVER shrink it through zero width in mid-calf.
+    """
+    w,h=src.size
+    hip=round(h*0.67)
+    px=src.load()
+    hip_band=[x for y in range(max(0,hip-4),min(h,hip+3))
+              for x in range(w) if px[x,y]!=255]
+    assert hip_band,("no hip band",src.size)
+    axis=round(sum(hip_band)/len(hip_band))
+    lower=[x for y in range(hip,h) for x in range(w) if px[x,y]!=255]
+    assert lower,("no legs",src.size)
+    # Avoid cropping at the horizontal edges if the sprite crop is asymmetric.
+    axis=max(round(max(lower)/2),min(round((min(lower)+w-1)/2),axis))
+    out=src.copy()
+    dst=out.load()
+    for y in range(hip+1,h):
+        original=[px[x,y] for x in range(w)]
+        for x in range(w):dst[x,y]=255
+        for x,v in enumerate(original):
+            if v==255:continue
+            reflected=2*axis-x
+            if 0<=reflected<w:
+                dst[reflected,y]=v
+    # Reattach the mirrored limb origins to the unmodified torso at the seam.
+    # Use the pelvis's own palette pixels, never paint a foreign palette color.
+    top=[x for x in range(w) if px[x,hip]!=255]
+    foot=[x for x in range(w) if dst[x,hip+1]!=255]
+    if top and foot:
+        near=min(((abs(a-b),a,b) for a in top for b in foot),key=lambda x:x[0])
+        if near[0]>1:
+            a,b=near[1:]
+            paint=px[a,hip]
+            for x in range(min(a,b),max(a,b)+1):
+                dst[x,hip+1]=paint
+    old_opaque=sum(v!=255 for v in src.tobytes())
+    new_opaque=sum(v!=255 for v in out.tobytes())
+    assert abs(new_opaque-old_opaque)<=max(5,int(old_opaque*.04)),(src.size,old_opaque,new_opaque)
+    assert sha(out)!=sha(src),"Contralateral phase must differ from source"
+    assert set(out.tobytes()).issubset(set(src.tobytes())),"Preserve indexed sprite palette"
+    return out
+
 def rgba(im,scale=3):
     out=Image.new("RGBA",im.size)
     s=im.load();p=out.load()
@@ -202,13 +250,22 @@ def main():
                 seq=[lookup[i] for i in range(a["first"],a["first"]+6)]
                 origin=[decode(blob,f["off"],(f["w"],f["h"]))[0] for f in seq]
                 assert len({sha(x) for x in origin})==3,(race,mode,a["dir"])
-                complete=[origin[0],origin[1],origin[2],
-                          make_pose(origin[2],origin[1],4),
-                          origin[1],
-                          make_pose(origin[0],origin[1],6)]
+                # SE (direction 3): genuine opposite-leg beats rather than
+                # a fixed left-leading gait; preserve NW (7) byte-for-byte.
+                if a["dir"]==3:
+                    complete=[origin[0],mirror_lower_stride(origin[0]),
+                              origin[1],mirror_lower_stride(origin[1]),
+                              origin[2],mirror_lower_stride(origin[2])]
+                    slots=((1,0),(2,1),(3,1),(4,2),(5,2))
+                else:
+                    complete=[origin[0],origin[1],origin[2],
+                              make_pose(origin[2],origin[1],4),
+                              origin[1],
+                              make_pose(origin[0],origin[1],6)]
+                    slots=((3,2),(5,0))
                 assert len({sha(x) for x in complete})>=5,(race,mode,a["dir"])
                 shots[(mode,a["dir"])]=complete
-                for target_idx,source_idx in ((3,2),(5,0)):
+                for target_idx,source_idx in slots:
                     dest,source=seq[target_idx],seq[source_idx]
                     rewritten[dest["id"]]=encode(complete[target_idx])
                     updated_ids.add(dest["id"])
@@ -219,14 +276,16 @@ def main():
                         value=str(source[key]).rjust(length).encode("ascii")
                         assert len(value)==length,(key,value)
                         std[dest["row"]+offset:dest["row"]+offset+length]=value
-                for idx in (3,5):
+                for idx in ((1,2,3,4,5) if a["dir"]==3 else (3,5)):
                     folder=OUT/"new-frames"/race/mode
                     folder.mkdir(parents=True,exist_ok=True)
                     complete[idx].save(folder/f"D{a['dir']}-F{idx+1}.png")
                 results.append({"population":race,"action":mode,"direction":a["dir"],
-                                "original_sequence":"A,B,C,C,B,A","replacement_sequence":"A,B,C,D,B,E",
-                                "replace_records":",".join(seq[x]["file"] for x in (3,4,5)),
-                                "authored_slots":"4,6","unique_after":len({sha(x) for x in complete})})
+                                "original_sequence":"A,B,C,C,B,A",
+                                "replacement_sequence":("A,A',B,B',C,C'" if a["dir"]==3 else "A,B,C,D,B,E"),
+                                "replace_records":",".join(seq[x]["file"] for x,_ in slots),
+                                "authored_slots":",".join(str(x+1) for x,_ in slots),
+                                "unique_after":len({sha(x) for x in complete})})
         for mode in MODES:previews(race,shots,mode)
         reblob=bytearray()
         for fr in existing:
@@ -261,11 +320,11 @@ def main():
         writer.writeheader();writer.writerows(results)
     manifest={"phase":"VISUAL REVIEW BEFORE MERGE","races":len(RACES),"directions":8,
               "actions":["M","GM"],"new_poses":len(RACES)*8*2*2,
-              "replaced_slots":len(RACES)*8*2*2,
+              "replaced_slots":len(RACES)*8*2*2 + len(RACES)*2*3,
               "method":"two conservative motion transitions from intact original drawn poses; no leg reflection",
               "input_pattern":"A,B,C,C,B,A","output_pattern":"A,B,C,D,B,E",
               "new_sprite_bytes":sum(len(x) for x in replacement.values()),
-              "caution":"Generated transitional poses require in-game visual review before publication."}
+              "caution":"SE contralateral walk candidate only; NW unchanged. Evaluate SE and E separately in gameplay."}
     (OUT/"REPORT.json").write_text(json.dumps(manifest,indent=2),"utf-8")
     with zipfile.ZipFile(OUT/"seven-kingdoms-sprite-restoration.zip","w",zipfile.ZIP_DEFLATED,compresslevel=5) as zipf:
         for path in [OUT/"STD.SET",OUT/"REPORT.json",OUT/"missing-frames.csv"]:
