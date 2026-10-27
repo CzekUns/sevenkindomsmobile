@@ -5,6 +5,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: restored-gait-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build-sprites:
     runs-on: ubuntu-latest
@@ -34,7 +37,6 @@ jobs:
           path: sprite-restoration-output/
           if-no-files-found: warn
       - name: Preserve source artwork, contact sheets and native SPR patches in this review branch
-        continue-on-error: true
         shell: bash
         run: |
           mkdir -p mod/sprite-restoration-candidate
@@ -44,6 +46,8 @@ jobs:
           cp sprite-restoration-output/missing-frames.csv mod/sprite-restoration-candidate/
           cp -r sprite-restoration-output/contact-sheets mod/sprite-restoration-candidate/
           cp -r sprite-restoration-output/new-frames mod/sprite-restoration-candidate/
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/restored-game-server.log 2>&1 &
+          node tools/test-restored-sprites.mjs
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add mod/sprite-restoration-candidate
