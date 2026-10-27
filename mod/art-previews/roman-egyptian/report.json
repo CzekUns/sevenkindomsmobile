@@ -1,0 +1,950 @@
+{
+  "M-NE-EGYPTIAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "c763261a19",
+        "size": [
+          31,
+          53
+        ],
+        "anchor": [
+          2,
+          -18
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "ed37c20daa",
+        "size": [
+          34,
+          51
+        ],
+        "anchor": [
+          3,
+          -19
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "12e202edea",
+        "size": [
+          46,
+          55
+        ],
+        "anchor": [
+          -4,
+          -20
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "c763261a19",
+        "size": [
+          31,
+          53
+        ],
+        "anchor": [
+          2,
+          -18
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "4f6a52622a",
+        "size": [
+          38,
+          53
+        ],
+        "anchor": [
+          -1,
+          -19
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "c693c48257",
+        "size": [
+          42,
+          59
+        ],
+        "anchor": [
+          0,
+          -20
+        ]
+      }
+    ]
+  },
+  "M-NE-ROMAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "05b4a58e91",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          11,
+          -18
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "bce6831e1d",
+        "size": [
+          26,
+          47
+        ],
+        "anchor": [
+          12,
+          -18
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "aedff7deee",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          11,
+          -18
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "6bc7a719a7",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          11,
+          -18
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "bce6831e1d",
+        "size": [
+          26,
+          47
+        ],
+        "anchor": [
+          12,
+          -18
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "39667327b7",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          11,
+          -18
+        ]
+      }
+    ]
+  },
+  "M-SE-EGYPTIAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "eb6e64612f",
+        "size": [
+          33,
+          54
+        ],
+        "anchor": [
+          -2,
+          -18
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "02e0661329",
+        "size": [
+          37,
+          53
+        ],
+        "anchor": [
+          -3,
+          -17
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "cc34a664a3",
+        "size": [
+          40,
+          59
+        ],
+        "anchor": [
+          -2,
+          -14
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "eb6e64612f",
+        "size": [
+          33,
+          54
+        ],
+        "anchor": [
+          -2,
+          -18
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "4a9248f0b5",
+        "size": [
+          26,
+          53
+        ],
+        "anchor": [
+          3,
+          -18
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "0d744a9d22",
+        "size": [
+          35,
+          55
+        ],
+        "anchor": [
+          1,
+          -15
+        ]
+      }
+    ]
+  },
+  "M-SE-ROMAN": {
+    "count": 6,
+    "unique": 6,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "272a9abb2a",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -5,
+          -19
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "596687c973",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -5,
+          -19
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "7bf342f90d",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -5,
+          -19
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "fd38827b32",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -5,
+          -19
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "0746591b46",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -5,
+          -19
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "a1898258d0",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -5,
+          -19
+        ]
+      }
+    ]
+  },
+  "M-SW-EGYPTIAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "eb6e64612f",
+        "size": [
+          33,
+          54
+        ],
+        "anchor": [
+          2,
+          -18
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "02e0661329",
+        "size": [
+          37,
+          53
+        ],
+        "anchor": [
+          -1,
+          -17
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "cc34a664a3",
+        "size": [
+          40,
+          59
+        ],
+        "anchor": [
+          -5,
+          -14
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "eb6e64612f",
+        "size": [
+          33,
+          54
+        ],
+        "anchor": [
+          2,
+          -18
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "4a9248f0b5",
+        "size": [
+          26,
+          53
+        ],
+        "anchor": [
+          4,
+          -18
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "0d744a9d22",
+        "size": [
+          35,
+          55
+        ],
+        "anchor": [
+          -3,
+          -15
+        ]
+      }
+    ]
+  },
+  "M-SW-ROMAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "12a21f2390",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "2c2b064cf9",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "e194818a81",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "bbb3e0488d",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "2c2b064cf9",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "bf66dc7c07",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      }
+    ]
+  },
+  "M-NW-EGYPTIAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "c763261a19",
+        "size": [
+          31,
+          53
+        ],
+        "anchor": [
+          0,
+          -18
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "ed37c20daa",
+        "size": [
+          34,
+          51
+        ],
+        "anchor": [
+          -4,
+          -19
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "12e202edea",
+        "size": [
+          46,
+          55
+        ],
+        "anchor": [
+          -9,
+          -20
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "c763261a19",
+        "size": [
+          31,
+          53
+        ],
+        "anchor": [
+          0,
+          -18
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "4f6a52622a",
+        "size": [
+          38,
+          53
+        ],
+        "anchor": [
+          -4,
+          -19
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "c693c48257",
+        "size": [
+          42,
+          59
+        ],
+        "anchor": [
+          -9,
+          -20
+        ]
+      }
+    ]
+  },
+  "M-NW-ROMAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "05b4a58e91",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          -7,
+          -18
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "ca153c524d",
+        "size": [
+          26,
+          47
+        ],
+        "anchor": [
+          -5,
+          -18
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "aedff7deee",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          -7,
+          -18
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "6bc7a719a7",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          -7,
+          -18
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "ca153c524d",
+        "size": [
+          26,
+          47
+        ],
+        "anchor": [
+          -5,
+          -18
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "39667327b7",
+        "size": [
+          29,
+          47
+        ],
+        "anchor": [
+          -7,
+          -18
+        ]
+      }
+    ]
+  },
+  "GM-NE-EGYPTIAN": {
+    "count": 0
+  },
+  "GM-NE-ROMAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "4c65c87c00",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          12,
+          -25
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "525fbc40be",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          13,
+          -25
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "836cff4176",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          12,
+          -25
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "e3d3533e59",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          12,
+          -25
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "525fbc40be",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          13,
+          -25
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "f3f2169c34",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          12,
+          -25
+        ]
+      }
+    ]
+  },
+  "GM-SE-EGYPTIAN": {
+    "count": 0
+  },
+  "GM-SE-ROMAN": {
+    "count": 6,
+    "unique": 6,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "56362cc2f8",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -3,
+          -19
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "4b8a43894a",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -3,
+          -19
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "d9d85777ce",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -3,
+          -19
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "34755c9720",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -3,
+          -19
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "7ceff6df5d",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -3,
+          -19
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "d08147d72f",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -3,
+          -19
+        ]
+      }
+    ]
+  },
+  "GM-SW-EGYPTIAN": {
+    "count": 0
+  },
+  "GM-SW-ROMAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "fbf238c733",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "57a902a9f8",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "fd6e3ddd1b",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "bb3bf88a27",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "57a902a9f8",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "29c77787ac",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          6,
+          -19
+        ]
+      }
+    ]
+  },
+  "GM-NW-EGYPTIAN": {
+    "count": 0
+  },
+  "GM-NW-ROMAN": {
+    "count": 6,
+    "unique": 5,
+    "frames": [
+      {
+        "step": 1,
+        "sha": "4c65c87c00",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -11,
+          -25
+        ]
+      },
+      {
+        "step": 2,
+        "sha": "525fbc40be",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -10,
+          -25
+        ]
+      },
+      {
+        "step": 3,
+        "sha": "836cff4176",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -11,
+          -25
+        ]
+      },
+      {
+        "step": 4,
+        "sha": "e3d3533e59",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -11,
+          -25
+        ]
+      },
+      {
+        "step": 5,
+        "sha": "525fbc40be",
+        "size": [
+          30,
+          55
+        ],
+        "anchor": [
+          -10,
+          -25
+        ]
+      },
+      {
+        "step": 6,
+        "sha": "f3f2169c34",
+        "size": [
+          32,
+          55
+        ],
+        "anchor": [
+          -11,
+          -25
+        ]
+      }
+    ]
+  }
+}
