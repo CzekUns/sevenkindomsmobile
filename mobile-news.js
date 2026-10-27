@@ -11,7 +11,7 @@
   const isMod=/\/mod\/?$/.test(location.pathname);
   const logical={x:0,y:502,width:562,height:95};
   const mini={x:586,y:57,width:204,height:200};
-  let started=false, open=true, activeTab='news', focusY=579;
+  let started=false, open=false, activeTab='news', focusY=579;
   let timer=null, newCount=0;
   const inbox=[],MAX_ALERTS=40;
 
