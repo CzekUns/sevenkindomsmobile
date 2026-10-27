@@ -71,14 +71,14 @@ def build(poses,mode,d):
         front_donor=0
         inner_donor=1 if d==3 else 2
         front_start=round(w*.50);inner_start=round(w*.49)
-        theta=-51
+        theta=51
         erase=(round(w*.17),round(w*.90))
     else:
         front_foot=(round(w*.28),h-5)
         inner_foot=(round(w*.64),h-5)
         front_donor=0;inner_donor=2
         front_start=round(w*.51);inner_start=round(w*.55)
-        theta=57
+        theta=-57
         erase=(round(w*.14),round(w*.73))
     dest_size=(w+2*X_PAD,h+2*Y_PAD)
     parts=[]
@@ -94,6 +94,8 @@ def build(poses,mode,d):
         assert size>=12,(mode,d,role,"too few authentic pixels",size)
         pivot=(X_PAD+sx,Y_PAD+cut+1)
         parts.append((role,layer,pivot,size))
+    # Rotation signs follow image coordinates (+Y down): downstream-facing
+    # forward foot on the right requires +angle to swing left, not -angle.
     # Protect all torso/skirt pixels above the cut, including equipment/shield.
     torso=pad_canvas(ref,dest_size)
     op=torso.load()
