@@ -44,7 +44,7 @@ def scaled(im,scale=3):
 def make(direc,label):
     egypt=cycle("EGYPTIAN",direc);roman=cycle("ROMAN",direc)
     assert len(egypt)==len(roman)==6
-    sheet=Image.new("RGB",(1680,690),(26,28,34));d=ImageDraw.Draw(sheet)
+    sheet=Image.new("RGB",(1680,880),(26,28,34));d=ImageDraw.Draw(sheet)
     d.text((20,18),f"LEG ANIMATION STUDY: {label}  |  AUTHENTIC EGYPTIAN LOWER BODY + ROMAN UPPER",fill=(242,222,186))
     d.text((20,37),"Preview only: no new pose invented, no in-game sprite replacement.",fill=(190,190,201))
     rows=[("EGYPTIAN donor (original complete frame)",[raw_rgba(im) for f,im in egypt]),
@@ -52,14 +52,14 @@ def make(direc,label):
           ("HYBRID: Roman upper + Egyptian lower",[pieces(a,b)[0] for a,b in zip(roman,egypt)])]
     anim=[]
     for r,(title,frames_) in enumerate(rows):
-        y=80+r*198
+        y=80+r*257
         d.text((20,y),title,fill=(224,224,223))
         for i,frame in enumerate(frames_):
             left=280+i*228
-            d.rectangle((left,y,left+198,y+167),fill=(57,60,68))
+            d.rectangle((left,y,left+198,y+222),fill=(57,60,68))
             tile=scaled(frame,2 if r==2 else 3)
             x=left+99-tile.width//2
-            yy=y+85-tile.height//2
+            yy=y+113-tile.height//2
             sheet.paste(tile,(x,yy),tile)
             d.text((left+6,y+4),f"F{i+1}",fill=(235,198,133))
     dest=OUT/f"roman-egyptian-hybrid-{label}.png"
