@@ -27,6 +27,8 @@ async function testMode(experimental){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:120000});
   await page.waitForFunction(()=>!document.getElementById('start').hidden,
                               {timeout:180000});
+  assert.equal(await page.locator('#romanTestBanner').isVisible(),experimental,
+               'The preview banner must identify experimental ROMAN mode only');
   await page.evaluate(()=>{document.documentElement.requestFullscreen=()=>Promise.resolve()});
   await page.locator('#start').click();
   await page.waitForFunction(()=>['installed','error'].includes(
