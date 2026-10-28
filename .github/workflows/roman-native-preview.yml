@@ -1,0 +1,21 @@
+name: Roman native preview isolated production mode
+on:
+  push:
+    branches: [preview/roman-native-diagonals-toggle]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save playwright
+      - name: Compare all 17 assets and boot original and opt-in Roman preview
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/mod-roman-preview-test.log 2>&1 &
+          node tools/test-roman-production-preview.mjs
