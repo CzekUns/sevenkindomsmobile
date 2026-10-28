@@ -6,10 +6,17 @@
   "use strict";
   const races=["ROMAN","CELT","SAMNITE","ETRUSCAN","MONGOL","IBERIAN","BABYLON","CARTHAGE"];
   const gods=["JUPITER","CERNUNNO","MAMERTE","TINIA","TENGRI","NETON","MARDUK","BAAL_HAM"];
-  const items=[["/data/RESOURCE/STD.SET","STD.SET","god-shadow-candidate/STD.SET"],
-    ...races.map(name=>["/data/SPRITE/"+name+".SPR",name+".SPR","sprite-restoration-candidate/"+name+".SPR"]),
+  // Production opt-in: /mod/?roman_test=1 mounts only the experimental
+  // Roman walking frames plus their matching SFRAME table. Ordinary /mod/
+  // remains byte-for-byte identical in all sprites and game saves.
+  const romanPreview = new URLSearchParams(window.location.search).get("roman_test")==="1";
+  const items=[["/data/RESOURCE/STD.SET","STD.SET",
+      romanPreview ? "roman-preview/STD.SET" : "god-shadow-candidate/STD.SET"],
+    ...races.map(name=>["/data/SPRITE/"+name+".SPR",name+".SPR",
+      romanPreview && name==="ROMAN" ? "roman-preview/ROMAN.SPR"
+                                   : "sprite-restoration-candidate/"+name+".SPR"]),
     ...gods.map(name=>["/data/SPRITE/"+name+".SPR",name+".SPR","god-shadow-candidate/"+name+".SPR"])];
-  const state={status:"pending",loaded:0,total:items.length,error:null};
+  const state={status:"pending",loaded:0,total:items.length,error:null,romanPreview};
   window.SevenKingdomsRestoredWalk=state;
   let inFlight;
   const u32=(a,at)=>new DataView(a.buffer,a.byteOffset,a.byteLength).getUint32(at,true);
