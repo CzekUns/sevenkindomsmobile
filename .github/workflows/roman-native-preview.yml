@@ -1,7 +1,7 @@
 name: Roman native preview isolated production mode
 on:
   push:
-    branches: [preview/roman-native-diagonals-toggle]
+    branches: [preview/roman-native-diagonals-toggle, fix/roman-preview-visible-cache-bust]
   workflow_dispatch:
 permissions:
   contents: read
