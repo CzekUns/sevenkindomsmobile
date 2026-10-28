@@ -39,6 +39,7 @@
 <button id="zoomReset" class="pad" type="button" aria-label="Togli lo zoom" hidden>1×</button>
 <div id="loading">
   <h1>Seven Kingdoms · MOD</h1>
+  <p id="romanTestBanner" hidden style="color:#f4d58d;font-weight:bold">⚔ ROMANI · PROVA NUOVE CAMMINATE OBLIQUE</p>
   <p id="status">Scarico i dati di gioco (circa 115 MB la prima volta)…</p>
   <div id="bar"><i id="barFill"></i></div>
   <button id="start" hidden>Gioca</button>
@@ -48,6 +49,9 @@
 </div>
 <script>
 var MOD_DATA = ["RESOURCE.data", "SPRITE.data"];
+if (new URLSearchParams(window.location.search).get('roman_test') === '1') {
+  document.getElementById('romanTestBanner').hidden = false;
+}
 // Browser build of Seven Kingdoms: Ancient Adversaries (GPL-2.0, 7kfans / Enlight).
 // Data packages mount under /data; saves and CONFIG.DAT live in /saves on IndexedDB.
 // window.status is a browser-owned string: never use "status" as a global variable.
@@ -280,7 +284,7 @@ ready.then(function(){
 <script src="../mobile-news.js"></script>
 <script src="spawn-fix.js"></script>
 <script src="university-faction-roof.js"></script>
-<script src="walk-restoration.js"></script>
+<script src="walk-restoration.js?v=roman-test-20261028"></script>
 <script src="../data/ENCYC.js"></script>
 <script src="../data/ENCYC2.js"></script>
 <script src="../data/IMAGE.js"></script>
